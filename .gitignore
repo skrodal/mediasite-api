@@ -1,0 +1,5 @@
+*.schema*
+*.idea*
+.dev
+dataporten_config.js
+mysql_config.js
