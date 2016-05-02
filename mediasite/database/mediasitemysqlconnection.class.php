@@ -9,9 +9,6 @@
 
 	namespace Mediasite\Database;
 
-	use MongoClient;
-	use MongoConnectionException;
-	use MongoCursorException;
 	use Mediasite\Utils\Response;
 	use Mediasite\Conf\Config;
 	use Mediasite\Utils\Utils;
@@ -26,7 +23,7 @@
 		public function __construct() {
 			// Get connection conf
 			$this->config = $this->getConfig();
-			// MongoClient
+			// MySQL connection
 			$this->connection = $this->getConnection();
 			// Set Client DB
 			$this->db = $this->connection->selectDB( $this->config['db'] );
@@ -55,10 +52,10 @@
 		}
 
 		private function getConnection(){
-			try {
-				return new MongoClient("mongodb://" . $this->config['user'] . ":" . $this->config['pass'] . "@127.0.0.1/" . $this->config['db']);
-			} catch (MongoConnectionException $e){
-				Utils::log($e->getMessage());
+			$mysqli = new mysqli($this->config['host'], $this->config['user'], $this->config['pass'], $this->config['db']);
+			// If error code set
+			if ($mysqli->connect_errno) {
+				Utils::log('MySQL Connect Error: ' . $mysqli->connect_error);   // Returns a string description of the last connect error
 				Response::error(500, $_SERVER["SERVER_PROTOCOL"] . ' DB connection failed (MySQL).');
 			}
 		}
