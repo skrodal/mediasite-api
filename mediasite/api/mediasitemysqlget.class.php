@@ -22,6 +22,9 @@
 		}
 		// Total only
 		public function totalDiskusage() {
+
+			$orgs = $this->mediasiteMySQLConnection->query('SELECT DISTINCT org FROM org_storage');
+			return $orgs;
 			/*
 				$orgs = $this->mediasiteMySQLConnection->findAll('org');
 				//
