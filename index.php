@@ -39,6 +39,16 @@
 		Response::result(array('status' => true, 'data' => $router->getRoutes()));
 	}, 'All available routes.');
 
+	/**
+	 * For DEV - to inspect Dataporten headers.
+	 */
+	$router->map('GET', '/headers/', function () {
+		global $router;
+		Response::result(array('status' => true, 'data' => $_SERVER ));
+	}, 'All available routes.');
+
+
+
 	// SERVICE ROUTES (scope basic)
 	// (Update: NOT true! Basic Scope is not transferred in HTTP_X_DATAPORTEN_SCOPES, hence client needs at least one custom scope.)
 	// See GK in dataporten.class...

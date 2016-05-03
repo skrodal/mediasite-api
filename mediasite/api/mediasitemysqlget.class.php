@@ -22,7 +22,7 @@
 		}
 
 		/**
-		 * List of all orgs with registered storage. Note: May not be subscribers any more!
+		 * Sorted list of all orgs with registered storage. Note: May not be subscribers any more!
 		 *
 		 * @return bool|\mysqli_result
 		 */

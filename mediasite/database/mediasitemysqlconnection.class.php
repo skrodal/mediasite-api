@@ -70,26 +70,26 @@
 		 * @return array
 		 */
 		public function query($query) {
-			$response = $this->connection->query($query);
-
+			//
 			Utils::log("Running query: ". $query);
-
+			// Run query
+			$response = $this->connection->query($query);
 			// On error
 			if(!$response) {
 				Utils::log('MySQL Query Error: ' . $this->connection->error);
 				Response::error(500, $_SERVER["SERVER_PROTOCOL"] . ' DB query failed (MySQL).');
 			}
-
+			//
 			Utils::log("Rows returned: " . $response->num_rows);
-
+			// For storing returned rows
 			$rows = array();
 			while($r = $response->fetch_assoc()) {
 				$rows[] = $r;
 			}
-
+			// Tidy
 			$response->close();
 			$this->connection->close();
-
+			// 
 			return $rows;
 		}
 	}
