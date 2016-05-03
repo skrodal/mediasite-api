@@ -75,10 +75,18 @@
 			$response = $this->connection->query($query);
 			// On error
 			if(!$response) {
-				Utils::log('MySQL Query Error: ' . $mysqli->error);
+				Utils::log('MySQL Query Error: ' . $this->connection->error);
 				Response::error(500, $_SERVER["SERVER_PROTOCOL"] . ' DB query failed (MySQL).');
 			}
 
-			return $response;
+			$rows = array();
+			while($r = $response->fetch_array($response)) {
+				$rows[] = $r;
+			}
+
+			$response->close();
+			$this->connection->close();
+
+			return $rows;
 		}
 	}
