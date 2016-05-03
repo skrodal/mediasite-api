@@ -38,13 +38,19 @@
 			return $orgNames;
 		}
 
+		/**
+		 * Get latest storage record per org.
+		 * 
+		 * @return array
+		 */
 		public function orgsLatestDiskUsage() {
 			$table = $this->mediasiteMySQLConnection->getOrgStorageTableName();
 			// Last distinct orgs (hence last timestamp)
 			$response = $this->mediasiteMySQLConnection->query(
 				"SELECT *" .
 				" FROM " . $table .
-				" WHERE id IN (SELECT MAX(id) FROM " . $table . " GROUP BY org)");
+				" WHERE id IN (SELECT MAX(id) FROM " . $table . " GROUP BY org)" .
+				" ORDER BY org");
 
 			$orgs = array();
 			foreach($response as $org) {

@@ -81,7 +81,8 @@
 
 
 	/**
-	 * List of orgs and most recent diskusage record.
+	 * Get latest storage record per org.
+	 * 
 	 * @since 03.05.2016
 	 */
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
@@ -89,7 +90,7 @@
 			array('GET', '/admin/orgs/diskusage/', function () {
 				global $mediasite;
 				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgsLatestDiskUsage()));
-			}, 'List of all orgs with their respective latest recorded diskusage (Scope: admin).'),
+			}, 'Latest diskusage record per org, includes timestamp, org and mib (Scope: admin).'),
 		]);
 	}
 
