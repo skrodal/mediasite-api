@@ -26,6 +26,7 @@
 
 	### 	  ALTO ROUTER 		###
 	$router = new Router();
+	$router->addMatchTypes(array('user' => '[0-9A-Za-z.@]++', 'org' => '[0-9A-Za-z.]++', 'presentation' => '[0-9A-Za-z.]++'));
 	$router->setBasePath(Config::get('router')['api_base_path']);
 
 ##########################################################################
@@ -120,10 +121,6 @@
 			}, $info),
 		]);
 
-		Response::result(array(
-			'status' => true,
-			'data'   => $mediasite->mysqlGet()->orgDiskusage($orgId)
-		));
 	}
 
 
