@@ -28,114 +28,99 @@
 	$router = new Router();
 	$router->setBasePath(Config::get('router')['api_base_path']);
 
-// ---------------------- DEFINE ROUTES ----------------------
+##########################################################################
+# PUBLIC ROUTE DEFINITIONS
+##########################################################################
 
-	/**
-	 * GET all REST routes
-	 */
-	$info = "All available routes (Scope: public).";
+	$info = "All available routes (scope: public).";
 	$router->map('GET', '/', function () {
-		global $router, $info;
+		global $router;
 		// TODO: Show only routes available according to scope
 		Response::result(array(
 			'status' => true,
-			'data'   => $router->getRoutes(),
-			'info'   => $info
+			'data'   => $router->getRoutes()
 		));
 	}, $info);
 
 
-	// SERVICE ROUTES (scope basic)
-	// (Update: NOT true! Basic Scope is not transferred in HTTP_X_DATAPORTEN_SCOPES, hence client needs at least one custom scope.)
-	// See GK in dataporten.class...
-	$info = "Total disk usage in MiB (Scope: public).";
+	$info = "Total disk usage in MiB (scope: public).";
 	$router->addRoutes([
 		array('GET', '/service/diskusage/', function () {
-			global $mediasite, $info;
+			global $mediasite;
 			Response::result(array(
 				'status' => true,
 				'data'   => $mediasite->mysqlGet()->totalDiskusageMiB(),
-				'info'   => $info
+				'info'   => 'MiB'
 			));
 		}, $info),
 	]);
 
+##########################################################################
+# ADMIN ROUTE DEFINITIONS
+##########################################################################
 
-	// ADMIN ROUTES - if scope allows
 	// isSuperAdmin added 15.10.2015 - need to be tested and considered carefully. Should we leave the clients to decide who is SuperAdmin, or
 	// hardcode in API, judging by 'uninett.no' in username (I prefer the latter)? The client can actually call this API to find out if user has role(s)
 	// super or org or user. simon@uninett.no should get:
 	// { roles : [super, org, user] }
 
-
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
-		$info = "Dev route to inspect headers (Scope: admin).";
+
+		$info = "Dev route to inspect headers (scope: admin).";
 		$router->map('GET', '/headers/', function () {
-			global $router, $info;
 			Response::result(array(
 				'status' => true,
-				'data'   => $_SERVER,
-				'info'   => $info
+				'data'   => $_SERVER
 			));
 		}, $info);
-	}
 
-	/**
-	 * @since 03.05.2016
-	 */
-	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
-		$info = "List of orgs with registered disk storage (Scope: admin).";
+		$info = "List of orgs (scope: admin).";
 		$router->addRoutes([
 			array('GET', '/admin/orgs/', function () {
-				global $mediasite, $info;
+				global $mediasite;
 				Response::result(array(
 					'status' => true,
-					'data'   => $mediasite->mysqlGet()->orgsList(),
-					'info'   => $info
+					'data'   => $mediasite->mysqlGet()->orgsList()
 				));
 			}, $info),
 		]);
-	}
 
-	/**
-	 * @since 03.05.2016
-	 */
-	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
-		$info = "Latest storage record per org, in MiB (Scope: admin).";
+		$info = "Latest storage record per org, in MiB (scope: admin).";
 		$router->addRoutes([
 			array('GET', '/admin/orgs/diskusage/', function () {
-				global $mediasite, $info;
+				global $mediasite;
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->mysqlGet()->orgsLatestDiskUsage(),
-					'info'   => $info
+					'info'   => 'MiB'
 				));
 			}, $info),
 		]);
 	}
 
 
-	/**
-	 * TODO
-	 */
-	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
+##########################################################################
+# ORG ROUTE DEFINITIONS
+##########################################################################
 
-	}
-
-	// ORG ROUTES if scope allows
-	// TODO:
 	//  At present, the client talks to Kind to check if logged on user is OrgAdmin.
-	//  This is not ideal, the check should happen in this API, which can call Kind and verify!
-	//  FC team says there is no easy way at present for one API GK to speak to another one... (OCT 2015)
+	//  Consider for this API to talk to ecampus-kind directly instead
 	if($dataporten->hasOauthScopeAdmin() || $dataporten->hasOauthScopeOrg()) { // TODO: Implement isOrgAdmin :: && ($dataporten->isOrgAdmin() || $dataporten->isSuperAdmin())) {
+
+
+		$info = "Org diskusage history (scope: admin/org).";
 		$router->addRoutes([
 			array('GET', '/org/[org:orgId]/diskusage/', function ($orgId) {
 				global $mediasite;
 				verifyOrgAccess($orgId);
-				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgDiskusage($orgId)));
-			}, 'Org diskusage history (Scope: admin/org).'),
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->mysqlGet()->orgDiskusage($orgId)
+				));
+			}, $info),
 		]);
 	}
+
 
 	// ---------------------- MATCH AND EXECUTE REQUESTED ROUTE ----------------------
 
