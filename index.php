@@ -45,7 +45,7 @@
 	$router->map('GET', '/headers/', function () {
 		global $router;
 		Response::result(array('status' => true, 'data' => $_SERVER ));
-	}, 'All available routes.');
+	}, 'Dev route to inspect headers.');
 
 
 
