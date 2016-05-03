@@ -27,7 +27,13 @@
 		 * @return bool|\mysqli_result
 		 */
 		public function orgs(){
-			return $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM " . $this->mediasiteMySQLConnection->getOrgStorageTableName());
+			$response = $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM " . $this->mediasiteMySQLConnection->getOrgStorageTableName());
+			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
+			$orgNames = array();
+			foreach($response as $field => $orgname) {
+				$orgNames[] = $orgname;
+			}
+			return $orgNames;
 		}
 
 		// Total only
