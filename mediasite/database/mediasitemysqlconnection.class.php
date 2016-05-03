@@ -84,6 +84,7 @@
 
 			$rows = array();
 			while($r = $response->fetch_assoc()) {
+				Utils::log("Row: " . $r);
 				$rows[] = $r;
 			}
 
