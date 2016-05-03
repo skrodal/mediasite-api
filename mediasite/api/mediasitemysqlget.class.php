@@ -26,7 +26,7 @@
 		 *
 		 * @return bool|\mysqli_result
 		 */
-		public function orgsList(){
+		public function orgsList() {
 			$response = $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM " . $this->mediasiteMySQLConnection->getOrgStorageTableName());
 			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
 			$orgNames = array();
@@ -34,28 +34,31 @@
 				$orgNames[] = $org["org"];
 			}
 			sort($orgNames);
+
 			return $orgNames;
 		}
 
-		public function orgsLatestDiskUsage(){
+		public function orgsLatestDiskUsage() {
 			$table = $this->mediasiteMySQLConnection->getOrgStorageTableName();
 			// Last distinct orgs (hence last timestamp)
 			$response = $this->mediasiteMySQLConnection->query(
 				"SELECT *" .
-					" FROM " . $table .
-					" WHERE id IN (SELECT MAX (id) FROM ". $table . " GROUP BY org)");
+				" FROM " . $table .
+				" WHERE id IN (SELECT MAX (id) FROM " . $table . " GROUP BY org)");
 
 			$orgs = array();
 			foreach($response as $org) {
 				$orgs[] = $org;
 			}
 			sort($orgs);
+
 			return $orgs;
 		}
 
 		// Total only
 		public function totalDiskusage() {
 			$orgs = $this->mediasiteMySQLConnection->query('SELECT DISTINCT org FROM org_storage');
+
 			return $orgs;
 			/*
 				$orgs = $this->mediasiteMySQLConnection->findAll('org');
@@ -88,4 +91,4 @@
 				return $response;
 			*/
 		}
-
+	}
