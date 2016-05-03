@@ -27,13 +27,15 @@
 		 * @return bool|\mysqli_result
 		 */
 		public function orgsList() {
-			$response = $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM " . $this->mediasiteMySQLConnection->getOrgStorageTableName());
+			$table = $this->mediasiteMySQLConnection->getOrgStorageTableName();
+			$response = $this->mediasiteMySQLConnection->query(
+				"SELECT DISTINCT org FROM " . $table . " ORDER BY org ASC"
+			);
 			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
 			$orgNames = array();
 			foreach($response as $org) {
 				$orgNames[] = $org["org"];
 			}
-			sort($orgNames);
 
 			return $orgNames;
 		}
@@ -50,7 +52,7 @@
 				"SELECT *" .
 				" FROM " . $table .
 				" WHERE id IN (SELECT MAX(id) FROM " . $table . " GROUP BY org)" .
-				" ORDER BY org");
+				" ORDER BY org ASC");
 
 			$orgs = array();
 			foreach($response as $org) {
