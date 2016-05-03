@@ -39,13 +39,15 @@
 		Response::result(array('status' => true, 'data' => $router->getRoutes()));
 	}, 'All available routes.');
 
-	$router->map('GET', '/', function () {
-		global $router;
-		// TODO: Show only routes available according to scope
-		Response::result(array('status' => true, 'data' => $router->getRoutes()));
-	}, 'All available routes.');
-
-
+	// SERVICE ROUTES (scope basic)
+	// (Update: NOT true! Basic Scope is not transferred in HTTP_X_DATAPORTEN_SCOPES, hence client needs at least one custom scope.)
+	// See GK in dataporten.class...
+	$router->addRoutes([
+		array('GET', '/service/diskusage/', function () {
+			global $mediasite;
+			Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->totalDiskusage()));
+		}, 'Diskusage total (Scope: public).'),
+	]);
 
 
 	// ADMIN ROUTES - if scope allows
