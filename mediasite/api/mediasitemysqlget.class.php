@@ -51,8 +51,7 @@
 			$response = $this->mediasiteMySQLConnection->query(
 				"SELECT *" .
 				" FROM " . $table .
-				" WHERE id IN (SELECT MAX(id) FROM " . $table . " GROUP BY org)" .
-				" ORDER BY org ASC");
+				" WHERE id IN (SELECT MAX(id) FROM " . $table . " GROUP BY org ORDER BY org ASC)");
 
 			$orgs = array();
 			foreach($response as $org) {
