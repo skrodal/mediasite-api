@@ -27,7 +27,7 @@
 		 * @return bool|\mysqli_result
 		 */
 		public function orgs(){
-			return $this->mediasiteMySQLConnection->query("SELECT * FROM org_storage");
+			return $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM " . $this->mediasiteMySQLConnection->getOrgStorageTableName());
 		}
 
 		// Total only

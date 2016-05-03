@@ -83,7 +83,7 @@
 			Utils::log("Rows returned: " . $response->num_rows);
 
 			$rows = array();
-			while($r = $response->fetch_assoc($response)) {
+			while($r = $response->fetch_assoc()) {
 				$rows[] = $r;
 			}
 
