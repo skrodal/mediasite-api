@@ -119,6 +119,11 @@
 				));
 			}, $info),
 		]);
+
+		Response::result(array(
+			'status' => true,
+			'data'   => $mediasite->mysqlGet()->orgDiskusage($orgId)
+		));
 	}
 
 

@@ -82,7 +82,7 @@
 		 */
 		public function orgDiskusage($org) {
 			$table    = $this->mySQLConnection->getOrgStorageTableName();
-			$response = $this->mySQLConnection->query("SELECT * FROM $table WHERE org LIKE $org");
+			$response = $this->mySQLConnection->query("SELECT * FROM $table WHERE org LIKE '$org'");
 			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
 			$orgStorageRecords = array();
 			foreach($response as $record) {
