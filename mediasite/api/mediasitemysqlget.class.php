@@ -31,9 +31,10 @@
 			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
 			$orgNames = array();
 			foreach($response as $org) {
-				$orgNames[] = $org['org'];
+				$orgNames[] = $org["org"];
 			}
-			return sort($orgNames);
+			sort($orgNames);
+			return $orgNames;
 		}
 
 		// Total only
