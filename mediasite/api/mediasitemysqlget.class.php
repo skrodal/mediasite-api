@@ -48,8 +48,12 @@
 		public function orgsLatestDiskUsage() {
 			$table = $this->mediasiteMySQLConnection->getOrgStorageTableName();
 			// Last distinct orgs (hence last timestamp)
-			$response = $this->mediasiteMySQLConnection->query("SELECT * FROM org_storage WHERE id IN (SELECT MAX(id) FROM org_storage GROUP BY org) ORDER BY org ASC");
-
+			$response = $this->mediasiteMySQLConnection->query(
+				"SELECT * FROM $table" .
+				" WHERE id IN (SELECT MAX(id) FROM $table GROUP BY org)" .
+				" ORDER BY org ASC"
+			);
+			
 			$orgs = array();
 			foreach($response as $org) {
 				$orgs[] = $org;
