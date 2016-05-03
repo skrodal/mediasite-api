@@ -16,7 +16,7 @@
 
 		function __construct(Dataporten $dp) {
 			$this->dataporten         = $dp;
-			$this->mediasiteMySQLGet  = new MediasiteMySQLGet($this->dataporten);
+			$this->mediasiteMySQLGet  = new MySQL($this->dataporten);
 		}
 
 		public function mysqlGet(){

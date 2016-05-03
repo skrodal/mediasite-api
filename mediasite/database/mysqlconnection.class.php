@@ -15,7 +15,7 @@
 	use Mediasite\Utils\Utils;
 	use mysqli;
 
-	class MediasiteMySQLConnection {
+	class MySQLConnection {
 
 		private $connection;
 		private $config;
@@ -89,7 +89,7 @@
 			// Tidy
 			$response->close();
 			$this->connection->close();
-			// 
+			//
 			return $rows;
 		}
 	}

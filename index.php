@@ -33,30 +33,31 @@
 	/**
 	 * GET all REST routes
 	 */
+	$info = "All available routes (Scope: public).";
 	$router->map('GET', '/', function () {
-		global $router;
+		global $router, $info;
 		// TODO: Show only routes available according to scope
-		Response::result(array('status' => true, 'data' => $router->getRoutes()));
-	}, 'All available routes.');
-
-	/**
-	 * For DEV - to inspect Dataporten headers.
-	 */
-	$router->map('GET', '/headers/', function () {
-		global $router;
-		Response::result(array('status' => true, 'data' => $_SERVER ));
-	}, 'Dev route to inspect headers.');
-
+		Response::result(array(
+			'status' => true,
+			'data'   => $router->getRoutes(),
+			'info'   => $info
+		));
+	}, $info);
 
 
 	// SERVICE ROUTES (scope basic)
 	// (Update: NOT true! Basic Scope is not transferred in HTTP_X_DATAPORTEN_SCOPES, hence client needs at least one custom scope.)
 	// See GK in dataporten.class...
+	$info = "Total disk usage in MiB (Scope: public).";
 	$router->addRoutes([
 		array('GET', '/service/diskusage/', function () {
-			global $mediasite;
-			Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->totalDiskusage()));
-		}, 'Diskusage total (Scope: public).'),
+			global $mediasite, $info;
+			Response::result(array(
+				'status' => true,
+				'data'   => $mediasite->mysqlGet()->totalDiskusageMiB(),
+				'info'   => $info
+			));
+		}, $info),
 	]);
 
 
@@ -66,45 +67,59 @@
 	// super or org or user. simon@uninett.no should get:
 	// { roles : [super, org, user] }
 
+
+	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
+		$info = "Dev route to inspect headers (Scope: admin).";
+		$router->map('GET', '/headers/', function () {
+			global $router, $info;
+			Response::result(array(
+				'status' => true,
+				'data'   => $_SERVER,
+				'info'   => $info
+			));
+		}, $info);
+	}
+
 	/**
-	 * Sorted list of unique org names in table (only)
 	 * @since 03.05.2016
 	 */
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
+		$info = "List of orgs with registered disk storage (Scope: admin).";
 		$router->addRoutes([
 			array('GET', '/admin/orgs/', function () {
-				global $mediasite;
-				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgsList()));
-			}, 'List of all orgs with registered storage regardless of subscription status (Scope: admin).'),
+				global $mediasite, $info;
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->mysqlGet()->orgsList(),
+					'info'   => $info
+				));
+			}, $info),
+		]);
+	}
+
+	/**
+	 * @since 03.05.2016
+	 */
+	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
+		$info = "Latest storage record per org, in MiB (Scope: admin).";
+		$router->addRoutes([
+			array('GET', '/admin/orgs/diskusage/', function () {
+				global $mediasite, $info;
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->mysqlGet()->orgsLatestDiskUsage(),
+					'info'   => $info
+				));
+			}, $info),
 		]);
 	}
 
 
 	/**
-	 * Get latest storage record per org.
-	 * 
-	 * @since 03.05.2016
+	 * TODO
 	 */
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
-		$router->addRoutes([
-			array('GET', '/admin/orgs/diskusage/', function () {
-				global $mediasite;
-				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgsLatestDiskUsage()));
-			}, 'Latest diskusage record per org, includes timestamp, org and mib (Scope: admin).'),
-		]);
-	}
 
-
-
-	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
-		$router->addRoutes([
-			array('GET', '/admin/orgs/diskusage/', function () {
-				global $mediasite;
-				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgsDiskusage()));
-			}, 'Diskusage history for all orgs (Scope: admin).'),
-			// TODO: Add POST service to receive daily updates and store to MongoDB
-			//array('POST', '/admin/orgs/diskusage/', function(){ global $mediasite; Response::result(array('status' => true, 'data' => $mediasite->mongoGet()->orgsDiskusage())); }, 'Service diskusage history for all orgs (Scope: admin).'),
-		]);
 	}
 
 	// ORG ROUTES if scope allows
