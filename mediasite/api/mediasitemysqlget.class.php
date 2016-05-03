@@ -26,7 +26,7 @@
 		 *
 		 * @return bool|\mysqli_result
 		 */
-		public function orgs(){
+		public function orgsList(){
 			$response = $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM " . $this->mediasiteMySQLConnection->getOrgStorageTableName());
 			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
 			$orgNames = array();
@@ -35,6 +35,22 @@
 			}
 			sort($orgNames);
 			return $orgNames;
+		}
+
+		public function orgsLatestDiskUsage(){
+			$table = $this->mediasiteMySQLConnection->getOrgStorageTableName();
+			// Last distinct orgs (hence last timestamp)
+			$response = $this->mediasiteMySQLConnection->query(
+				"SELECT *" .
+					" FROM " . $table .
+					" WHERE id IN (SELECT MAX (id) FROM ". $table . " GROUP BY org)");
+
+			$orgs = array();
+			foreach($response as $org) {
+				$orgs[] = $org;
+			}
+			sort($orgs);
+			return $orgs;
 		}
 
 		// Total only
@@ -73,26 +89,3 @@
 			*/
 		}
 
-		// Storage entries for all orgs
-		public function orgsDiskusage() {
-			/*
-			$orgs = $this->mediasiteMySQLConnection->findAll('org');
-			//
-			$response['total_mib'] = 0;
-			$response['orgs']      = [];
-
-			foreach($orgs as $org) {
-				if(!empty($org['storage'])) {
-					// Latest entry is most current
-					$length = sizeof($org['storage']) - 1;
-					$latest_mib = (float)$org['storage'][$length]['size_mib'];
-					$response['total_mib'] += $latest_mib;
-					$response['orgs'][$org['org']] = $latest_mib;
-				}
-			}
-			ksort($response['orgs']);
-
-			return $response;
-			*/
-		}
-	}

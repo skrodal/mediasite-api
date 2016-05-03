@@ -66,14 +66,34 @@
 	// super or org or user. simon@uninett.no should get:
 	// { roles : [super, org, user] }
 
+	/**
+	 * Sorted list of unique org names in table (only)
+	 * @since 03.05.2016
+	 */
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
 		$router->addRoutes([
 			array('GET', '/admin/orgs/', function () {
 				global $mediasite;
-				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgs()));
+				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgsList()));
 			}, 'List of all orgs with registered storage regardless of subscription status (Scope: admin).'),
 		]);
 	}
+
+
+	/**
+	 * List of orgs and most recent diskusage record.
+	 * @since 03.05.2016
+	 */
+	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
+		$router->addRoutes([
+			array('GET', '/admin/orgs/diskusage/', function () {
+				global $mediasite;
+				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgsLatestDiskUsage()));
+			}, 'List of all orgs with their respective latest recorded diskusage (Scope: admin).'),
+		]);
+	}
+
+
 
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
 		$router->addRoutes([
