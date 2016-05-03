@@ -123,7 +123,7 @@
 
 		$info = "Org diskusage history for requested year (scope: admin/org).";
 		$router->addRoutes([
-			array('GET', '/org/[a:org]/diskusage/[i:year]', function ($org, $year) {
+			array('GET', '/org/[a:org]/diskusage/[i:year]/', function ($org, $year) {
 				global $mediasite;
 				verifyOrgAccess($org);
 				Response::result(array(
