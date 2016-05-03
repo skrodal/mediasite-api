@@ -26,7 +26,6 @@
 
 	### 	  ALTO ROUTER 		###
 	$router = new Router();
-	$router->addMatchTypes(array('user' => '[0-9A-Za-z.@]++', 'org' => '[0-9A-Za-z.]++', 'presentation' => '[0-9A-Za-z.]++'));
 	$router->setBasePath(Config::get('router')['api_base_path']);
 
 ##########################################################################
@@ -109,14 +108,28 @@
 	if($dataporten->hasOauthScopeAdmin() || $dataporten->hasOauthScopeOrg()) { // TODO: Implement isOrgAdmin :: && ($dataporten->isOrgAdmin() || $dataporten->isSuperAdmin())) {
 
 
-		$info = "Org diskusage history (scope: admin/org).";
+		$info = "Org diskusage history for the current year (scope: admin/org).";
 		$router->addRoutes([
-			array('GET', '/org/[org:orgId]/diskusage/', function ($orgId) {
+			array('GET', '/org/[a:org]/diskusage/', function ($org) {
 				global $mediasite;
-				verifyOrgAccess($orgId);
+				verifyOrgAccess($org);
 				Response::result(array(
 					'status' => true,
-					'data'   => $mediasite->mysqlGet()->orgDiskusage($orgId)
+					'data'   => $mediasite->mysqlGet()->orgDiskusage($org, date("Y")),
+					'info'   => 'Storage records for the current year for org ' . $org . '.'
+				));
+			}, $info),
+		]);
+
+		$info = "Org diskusage history for requested year (scope: admin/org).";
+		$router->addRoutes([
+			array('GET', '/org/[a:org]/diskusage/[i:year]', function ($org, $year) {
+				global $mediasite;
+				verifyOrgAccess($org);
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->mysqlGet()->orgDiskusage($org, $year),
+					'info'   => 'Storage records for ' . $year . ' for org ' . $org . '.'
 				));
 			}, $info),
 		]);
