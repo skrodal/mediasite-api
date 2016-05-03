@@ -30,8 +30,8 @@
 			$response = $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM " . $this->mediasiteMySQLConnection->getOrgStorageTableName());
 			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
 			$orgNames = array();
-			foreach($response as $field => $orgname) {
-				$orgNames[] = $orgname;
+			foreach($response as $org) {
+				$orgNames[] = $org[1];
 			}
 			return $orgNames;
 		}
