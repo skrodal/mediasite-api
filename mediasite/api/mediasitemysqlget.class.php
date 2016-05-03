@@ -20,8 +20,20 @@
 			$this->mediasiteMySQLConnection = new MediasiteMySQLConnection();
 			$this->dataporten               = $dp;
 		}
+
+		/**
+		 * List of all orgs with registered storage. Note: May not be subscribers any more!
+		 *
+		 * @return bool|\mysqli_result
+		 */
+		public function orgs(){
+			return $this->mediasiteMySQLConnection->query('SELECT DISTINCT org FROM ' . $this->mediasiteMySQLConnection->getOrgStorageTableName());
+		}
+
 		// Total only
 		public function totalDiskusage() {
+
+
 
 			$orgs = $this->mediasiteMySQLConnection->query('SELECT DISTINCT org FROM org_storage');
 			return $orgs;

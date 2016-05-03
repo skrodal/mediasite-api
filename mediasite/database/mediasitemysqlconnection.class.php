@@ -16,9 +16,8 @@
 	use mysqli;
 
 	class MediasiteMySQLConnection {
-		// Mongo
+
 		private $connection, $db;
-		//
 		private $config;
 
 		public function __construct() {
@@ -28,6 +27,9 @@
 			$this->connection = $this->getConnection();
 		}
 
+		/**
+		 * @return mixed
+		 */
 		private function getConfig() {
 			$this->config = file_get_contents(Config::get('auth')['mediasite_mysql']);
 			// Sanity
@@ -38,6 +40,11 @@
 			return json_decode($this->config, true);
 		}
 
+		/**
+		 * Get a client connection to the DB
+		 *
+		 * @return mysqli
+		 */
 		private function getConnection() {
 			$mysqli = new mysqli($this->config['host'], $this->config['user'], $this->config['pass'], $this->config['db']);
 			// If error code set
@@ -48,6 +55,22 @@
 			return $mysqli;
 		}
 
+		/**
+		 * Name of table that holds storage stats.
+		 *
+		 * Stored in config to scale in case more tables are added in the future.
+		 */
+		public function getOrgStorageTableName(){
+			return $this->config['org_storage_table'];
+		}
+
+		/**
+		 * Handles queries
+		 *
+		 * @param $query
+		 *
+		 * @return bool|\mysqli_result
+		 */
 		public function query($query) {
 			$response = $this->connection->query($query);
 			// On error
@@ -58,9 +81,4 @@
 
 			return $response;
 		}
-
-		public function count($criteria) {
-			//
-		}
-
 	}

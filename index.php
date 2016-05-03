@@ -39,16 +39,13 @@
 		Response::result(array('status' => true, 'data' => $router->getRoutes()));
 	}, 'All available routes.');
 
+	$router->map('GET', '/', function () {
+		global $router;
+		// TODO: Show only routes available according to scope
+		Response::result(array('status' => true, 'data' => $router->getRoutes()));
+	}, 'All available routes.');
 
-	// SERVICE ROUTES (scope basic)
-	// (Update: NOT true! Basic Scope is not transferred in HTTP_X_DATAPORTEN_SCOPES, hence client needs at least one custom scope.)
-	// See GK in dataporten.class...
-	$router->addRoutes([
-		array('GET', '/service/diskusage/', function () {
-			global $mediasite;
-			Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->totalDiskusage()));
-		}, 'Diskusage total (Scope: public).'),
-	]);
+
 
 
 	// ADMIN ROUTES - if scope allows
@@ -56,6 +53,15 @@
 	// hardcode in API, judging by 'uninett.no' in username (I prefer the latter)? The client can actually call this API to find out if user has role(s)
 	// super or org or user. simon@uninett.no should get:
 	// { roles : [super, org, user] }
+
+	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
+		$router->addRoutes([
+			array('GET', '/admin/orgs/', function () {
+				global $mediasite;
+				Response::result(array('status' => true, 'data' => $mediasite->mysqlGet()->orgs()));
+			}, 'List of all orgs with registered storage regardless of subscription status (Scope: admin).'),
+		]);
+	}
 
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
 		$router->addRoutes([
