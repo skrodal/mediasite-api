@@ -134,6 +134,19 @@
 			}, $info),
 		]);
 
+		$info = "Org diskusage history for requested year and month (scope: admin/org).";
+		$router->addRoutes([
+			array('GET', '/org/[a:org]/diskusage/[i:year]/[i:month]/', function ($org, $year, $month) {
+				global $mediasite;
+				verifyOrgAccess($org);
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->mysqlGet()->orgDiskusage($org, $year, $month),
+					'info'   => 'Storage records for month ' . $month . ' of '. $year . ' for org ' . $org . '.'
+				));
+			}, $info),
+		]);
+
 	}
 
 

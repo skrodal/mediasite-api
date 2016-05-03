@@ -76,14 +76,20 @@
 		}
 
 		/**
-		 * All storage entries for a single org. TODO: consider adding flag for year...
+		 * All storage entries for a single org.
+		 *
+		 * Filtered on year and (optionally) month.
 		 *
 		 * @return array
 		 */
-		public function orgDiskusage($org, $year) {
+		public function orgDiskusage($org, $year, $month = NULL) {
 			$table    = $this->mySQLConnection->getOrgStorageTableName();
-			$response = $this->mySQLConnection->query("SELECT * FROM $table WHERE org = '$org' AND YEAR(timestamp) = $year");
-			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
+			if(is_null($month)) {
+				$response = $this->mySQLConnection->query("SELECT * FROM $table WHERE org = '$org' AND YEAR(timestamp) = $year");
+			} else {
+				$response = $this->mySQLConnection->query("SELECT * FROM $table WHERE org = '$org' AND YEAR(timestamp) = $year AND MONTH(timestamp) = $month");
+			}
+			
 			$orgStorageRecords = array();
 			foreach($response as $record) {
 				$orgStorageRecords[] = $record;
