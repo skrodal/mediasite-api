@@ -65,19 +65,22 @@
 		}
 
 		/**
-		 * Handles queries
-		 *
 		 * @param $query
 		 *
-		 * @return bool|\mysqli_result
+		 * @return array
 		 */
 		public function query($query) {
 			$response = $this->connection->query($query);
+
+			Utils::log("Running query: ". $query);v
+
 			// On error
 			if(!$response) {
 				Utils::log('MySQL Query Error: ' . $this->connection->error);
 				Response::error(500, $_SERVER["SERVER_PROTOCOL"] . ' DB query failed (MySQL).');
 			}
+
+			Utils::log("Rows returned: " . $response->num_rows);
 
 			$rows = array();
 			while($r = $response->fetch_array($response)) {
