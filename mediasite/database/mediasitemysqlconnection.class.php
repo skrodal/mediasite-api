@@ -17,7 +17,7 @@
 
 	class MediasiteMySQLConnection {
 
-		private $connection, $db;
+		private $connection;
 		private $config;
 
 		public function __construct() {
