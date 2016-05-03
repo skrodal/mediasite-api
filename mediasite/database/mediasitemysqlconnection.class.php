@@ -72,7 +72,7 @@
 		public function query($query) {
 			$response = $this->connection->query($query);
 
-			Utils::log("Running query: ". $query);v
+			Utils::log("Running query: ". $query);
 
 			// On error
 			if(!$response) {
@@ -83,7 +83,7 @@
 			Utils::log("Rows returned: " . $response->num_rows);
 
 			$rows = array();
-			while($r = $response->fetch_array($response)) {
+			while($r = $response->fetch_assoc($response)) {
 				$rows[] = $r;
 			}
 
