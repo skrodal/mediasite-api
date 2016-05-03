@@ -1,16 +1,14 @@
 <?php
 
 	namespace Mediasite\Api;
-	
+
 	use Mediasite\Auth\Dataporten;
 	use Mediasite\Database\MediasiteMySQLConnection;
-	use Mediasite\Utils\Response;
-	use Mediasite\Utils\Utils;
 
 	/**
 	 * Implements APIs GET routes.
 	 *
-	 * @author Simon Skrødal
+	 * @author  Simon Skrødal
 	 * @since   28/01/2016
 	 */
 	class MediasiteMySQLGet {
@@ -27,39 +25,35 @@
 		 * @return bool|\mysqli_result
 		 */
 		public function orgsList() {
-			$table = $this->mediasiteMySQLConnection->getOrgStorageTableName();
-			$response = $this->mediasiteMySQLConnection->query(
-				"SELECT DISTINCT org FROM " . $table . " ORDER BY org ASC"
-			);
+			$table    = $this->mediasiteMySQLConnection->getOrgStorageTableName();
+			$response = $this->mediasiteMySQLConnection->query("SELECT DISTINCT org FROM $table ORDER BY org ASC");
 			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
 			$orgNames = array();
 			foreach($response as $org) {
 				$orgNames[] = $org["org"];
 			}
-
+			// Done!
 			return $orgNames;
 		}
 
 		/**
 		 * Get latest storage record per org.
-		 * 
+		 *
 		 * @return array
 		 */
 		public function orgsLatestDiskUsage() {
 			$table = $this->mediasiteMySQLConnection->getOrgStorageTableName();
 			// Last distinct orgs (hence last timestamp)
 			$response = $this->mediasiteMySQLConnection->query(
-				"SELECT * FROM $table" .
-				" WHERE id IN (SELECT MAX(id) FROM $table GROUP BY org)" .
-				" ORDER BY org ASC"
+				"SELECT * FROM $table " .
+				"WHERE id IN (SELECT MAX(id) FROM $table GROUP BY org) " .
+				"ORDER BY org ASC"
 			);
-			
 			$orgs = array();
 			foreach($response as $org) {
 				$orgs[] = $org;
 			}
-			sort($orgs);
-
+			// Done!
 			return $orgs;
 		}
 
