@@ -74,6 +74,30 @@
 
 			return $total_mib;
 		}
+		// TODO: dailyAvgDiskusageMib($year, $month).
+		public function totalAvgDiskusageMiB($year){
+			$table    = $this->mySQLConnection->getOrgStorageTableName();
+			// Complete dump of all records from $year
+			$response = $this->mySQLConnection->query("SELECT timestamp, storage_mib FROM $table WHERE YEAR(timestamp) = $year");
+
+			$curDate = null;
+			$days = 0;
+			$dateStorage = 0;
+			$totalStorage = 0;
+			foreach($response as $storage) {
+				if($curDate !== date("Ymd", strtotime($storage['timestamp']))){
+					$curDate = date("Ymd", strtotime($storage['timestamp']));
+					$days++;
+					$totalStorage += $dateStorage;
+					$dateStorage = 0;
+				}
+				$dateStorage += $storage['storage_mib'];
+			}
+			// Remember to include last day
+			$totalStorage += $dateStorage;
+			//
+			return $totalStorage/$days;
+		}
 
 		/**
 		 * All storage entries for a single org.
