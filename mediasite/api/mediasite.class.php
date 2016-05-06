@@ -3,7 +3,9 @@
 
 	use Mediasite\Auth\Dataporten;
 	use Mediasite\Database\MySQLConnection;
-	use Mediasite\Api\Scopes;
+	use Mediasite\Api\Scopes\Basic;
+	use Mediasite\Api\Scopes\Org;
+	use Mediasite\Api\Scopes\Admin;
 
 
 	/**
