@@ -31,7 +31,7 @@
 			$homeOrg = explode('.', $this->dataporten->userOrg());
 			$homeOrg = $homeOrg[0];
 			$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$homeOrg' ORDER BY id DESC LIMIT 0,1");
-			return $response[0]['storage_mib'];
+			return (int)$response[0]['storage_mib'];
 		}
 		
 		/**
@@ -61,7 +61,7 @@
 			$storageList = $this->storageList();
 			$total_mib   = 0;
 			foreach($storageList as $record) {
-				$total_mib += $record['storage_mib'];
+				$total_mib += (int)$record['storage_mib'];
 			}
 
 			return $total_mib;
@@ -80,8 +80,8 @@
 				"ORDER BY storage_mib ASC"
 			);
 			$storage  = array();
-			foreach($response as $storage_mib) {
-				$storage[] = $storage_mib;
+			foreach($response as $key => $storage) {
+				$storage[] = $storage;
 			}
 
 			// Done!
