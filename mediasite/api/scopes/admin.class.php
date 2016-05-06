@@ -61,12 +61,8 @@
 				}
 			}
 
-			error_log(json_encode($orgsListTemp));
-
-			foreach($orgsListTemp as $org){
-				error_log(key($org));
-				error_log($org['total_mib']);
-				$orgsList[key($org)] = key($org)['total_mib'] / key($org)['total_records'];
+			foreach($orgsListTemp as $org => $orgObj){
+				$orgsList[$org] = $orgObj['total_mib'] / $orgObj['total_records'];
 			}
 			//
 			return $orgsList;
