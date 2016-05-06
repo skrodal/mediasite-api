@@ -1,6 +1,6 @@
 <?php
-	namespace Mediasite\Api;
-
+	namespace Mediasite\Api\Scopes;
+	
 	use Mediasite\Auth\Dataporten;
 	use Mediasite\Database\MySQLConnection;
 
