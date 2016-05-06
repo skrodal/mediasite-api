@@ -31,8 +31,7 @@
 			$homeOrg = explode('.', $this->dataporten->userOrg());
 			$homeOrg = $homeOrg[0];
 			$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$homeOrg' ORDER BY id DESC LIMIT 0,1");
-			error_log(json_encode($response));
-			return $response;
+			return $response[0]['storage_mib'];
 		}
 		
 		/**
