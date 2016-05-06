@@ -29,13 +29,14 @@
 		 */
 		public function orgDiskusage($org, $year, $month = NULL) {
 			if(is_null($month)) {
-				$response = $this->mySQLConnection->query("SELECT * FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
+				$response = $this->mySQLConnection->query("SELECT storage_mib, timestamp FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
 			} else {
-				$response = $this->mySQLConnection->query("SELECT * FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year AND MONTH(timestamp) = $month");
+				$response = $this->mySQLConnection->query("SELECT storage_mib, timestamp FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year AND MONTH(timestamp) = $month");
 			}
 
 			$orgStorageRecords = array();
 			foreach($response as $record) {
+				settype($record['storage_mib'], "integer");
 				$orgStorageRecords[] = $record;
 			}
 

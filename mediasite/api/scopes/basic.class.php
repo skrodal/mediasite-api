@@ -63,7 +63,7 @@
 			foreach($storageList as $record) {
 				$total_mib += $record;
 			}
-			return $total_mib;
+			return (int)$total_mib;
 		}
 
 		/**

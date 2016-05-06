@@ -21,7 +21,7 @@
 		}
 
 		/**
-		 * Get snapshot of latest storage record per org (sorted by org).
+		 * List of current storage usage per org (sorted by org).
 		 *
 		 * @return array
 		 */
@@ -40,6 +40,12 @@
 			return $orgs;
 		}
 
+		/**
+		 * List of average storage per org for a given year.
+		 *
+		 * @param null $year
+		 * @return array
+		 */
 		public function orgsDiskusageAvg($year = NULL) {
 			if(is_null($year)) {
 				$year = date("Y");
