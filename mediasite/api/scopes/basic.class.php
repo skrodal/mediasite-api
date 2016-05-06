@@ -61,9 +61,8 @@
 			$storageList = $this->storageList();
 			$total_mib   = 0;
 			foreach($storageList as $record) {
-				$total_mib += (int)$record['storage_mib'];
+				$total_mib += $record;
 			}
-
 			return $total_mib;
 		}
 
