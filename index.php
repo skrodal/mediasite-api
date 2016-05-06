@@ -43,7 +43,7 @@
 	}, $info);
 
 
-	$info = "List of orgs/folders with storage (scope: public).";
+	$info = "List of orgs/folders with storage. No values are inluded, folder names only (scope: public).";
 	$router->addRoutes([
 		array('GET', '/service/orgs/', function () {
 			global $mediasite;
@@ -54,7 +54,7 @@
 		}, $info),
 	]);
 
-	$info = "List of latest folder storage records (scope: public).";
+	$info = "List of latest folder storage records. No folder names, values only (scope: public).";
 	$router->addRoutes([
 		array('GET', '/service/diskusage/list/', function () {
 			global $mediasite;
@@ -97,6 +97,19 @@
 			Response::result(array(
 				'status' => true,
 				'data'   => $mediasite->basic()->totalAvgDiskusageMiB($year),
+				'info'   => 'MiB'
+			));
+		}, $info),
+	]);
+
+
+	$info = "Home org total diskusage as of last record (scope: public).";
+	$router->addRoutes([
+		array('GET', '/me/diskusage/total/', function () {
+			global $mediasite;
+			Response::result(array(
+				'status' => true,
+				'data'   => $mediasite->basic()->homeOrgDiskusageTotal(),
 				'info'   => 'MiB'
 			));
 		}, $info),

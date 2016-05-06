@@ -20,6 +20,15 @@
 			$this->orgStorageTable = $this->mySQLConnection->getOrgStorageTableName();
 		}
 
+		
+		public function homeOrgDiskusageTotal(){
+			$homeOrg = explode('.', $this->dataporten->userOrg());
+			$homeOrg = $homeOrg[0];
+			$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$homeOrg' ORDER BY id DESC LIMIT 0,1");
+
+			return $response;
+		}
+		
 		/**
 		 * Sorted list of all orgs (folders) on disk. Note: Folders may belong to non-subscribing/merged orgs.
 		 *

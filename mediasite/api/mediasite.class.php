@@ -38,10 +38,6 @@
 		public function admin() {
 			return $this->admin;
 		}
-
-		public function dp() {
-			return $this->dataporten;
-		}
 	}
 
 
