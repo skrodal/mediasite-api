@@ -81,7 +81,7 @@
 			);
 			$storage  = array();
 			foreach($response as $storage_mib) {
-				$storage[] = $storage_mib['storage_mib'];
+				$storage[] = (int)$storage_mib['storage_mib'];
 			}
 
 			// Done!
