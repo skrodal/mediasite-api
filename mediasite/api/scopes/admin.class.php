@@ -61,9 +61,9 @@
 				}
 			}
 			foreach($orgsListTemp as $org){
-				error_log($org);
+				error_log(key($org));
 				error_log($org['total_mib']);
-				$orgsList[$org] = $org['total_mib'] / $org['total_records'];
+				$orgsList[key($org)] = key($org)['total_mib'] / key($org)['total_records'];
 			}
 			//
 			return $orgsList;
