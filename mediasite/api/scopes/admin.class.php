@@ -60,6 +60,9 @@
 					$orgsListTemp[$record['org']]['total_records']++;
 				}
 			}
+
+			error_log(json_encode($orgsListTemp));
+
 			foreach($orgsListTemp as $org){
 				error_log(key($org));
 				error_log($org['total_mib']);
