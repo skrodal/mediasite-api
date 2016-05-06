@@ -28,7 +28,7 @@
 		public function orgsLatestDiskUsage() {
 			// Last distinct orgs (hence last timestamp)
 			$response = $this->mySQLConnection->query(
-				"SELECT org, storage_mib, timestamp FROM $this->orgStorageTable " .
+				"SELECT org, storage_mib FROM $this->orgStorageTable " .
 				"WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) " .
 				"ORDER BY org ASC"
 			);

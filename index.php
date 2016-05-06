@@ -113,7 +113,7 @@
 		
 		$info = "Org diskusage history for the current year (scope: admin/org).";
 		$router->addRoutes([
-			array('GET', '/org/[a:org]/diskusage/', function ($org) {
+			array('GET', '/org/[a:org]/diskusage/list/', function ($org) {
 				global $mediasite;
 				verifyOrgAccess($org);
 				Response::result(array(
@@ -126,7 +126,7 @@
 
 		$info = "Org diskusage history for requested year (scope: admin/org).";
 		$router->addRoutes([
-			array('GET', '/org/[a:org]/diskusage/[i:year]/', function ($org, $year) {
+			array('GET', '/org/[a:org]/diskusage/list/[i:year]/', function ($org, $year) {
 				global $mediasite;
 				verifyOrgAccess($org);
 				Response::result(array(
@@ -139,13 +139,38 @@
 
 		$info = "Org diskusage history for requested year and month (scope: admin/org).";
 		$router->addRoutes([
-			array('GET', '/org/[a:org]/diskusage/[i:year]/[i:month]/', function ($org, $year, $month) {
+			array('GET', '/org/[a:org]/diskusage/list/[i:year]/[i:month]/', function ($org, $year, $month) {
 				global $mediasite;
 				verifyOrgAccess($org);
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, $year, $month),
 					'info'   => 'Storage records for month ' . $month . ' of '. $year . ' for org ' . $org . '.'
+				));
+			}, $info),
+		]);
+
+		$info = "Org average diskusage for current year (scope: admin/org).";
+		$router->addRoutes([
+			array('GET', '/org/[a:org]/diskusage/avg/', function ($org) {
+				global $mediasite;
+				verifyOrgAccess($org);
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->org()->orgDiskusageAvg($org)
+				));
+			}, $info),
+		]);
+
+		$info = "Org average diskusage for requested year (scope: admin/org).";
+		$router->addRoutes([
+			array('GET', '/org/[a:org]/diskusage/avg/[i:year]/', function ($org, $year) {
+				global $mediasite;
+				verifyOrgAccess($org);
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->org()->orgDiskusageAvg($org, $year),
+					'info'   => 'Average storage this year for org ' . $org . '.'
 				));
 			}, $info),
 		]);

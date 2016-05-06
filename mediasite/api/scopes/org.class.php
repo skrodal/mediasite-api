@@ -38,7 +38,25 @@
 			foreach($response as $record) {
 				$orgStorageRecords[] = $record;
 			}
+
 			return $orgStorageRecords;
 		}
 
+		public function orgDiskusageAvg($org, $year = NULL) {
+			if(is_null($year)) {
+				$year = date("Y");
+			}
+			// All records for org from selected year
+			$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
+			//
+			$totalStorage = 0;
+			foreach($response as $storage) {
+				$totalStorage += $storage['storage_mib'];
+			}
+
+			//
+			return $totalStorage / sizeof( $response );
+		}
+
 	}
+
