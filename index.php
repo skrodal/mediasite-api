@@ -223,7 +223,7 @@
 
 		$info = "Average storage per org for selected year, in MiB (scope: admin).";
 		$router->addRoutes([
-			array('GET', '/admin/orgs/diskusage/avg/[i:year]/list/', function ($year) {
+			array('GET', '/admin/orgs/diskusage/avg/list/[i:year]/', function ($year) {
 				global $mediasite;
 				Response::result(array(
 					'status' => true,
