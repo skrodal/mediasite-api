@@ -23,7 +23,7 @@
 
 		/**
 		 * Use Dataporten HTTP_X_DATAPORTEN_USERID_SEC to restrict this query to home org.
-		 * 
+		 *
 		 * Warning: This function will fail where org name does not match folder name!
 		 * @return mixed
 		 */
@@ -31,8 +31,8 @@
 			$homeOrg = explode('.', $this->dataporten->userOrg());
 			$homeOrg = $homeOrg[0];
 			$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$homeOrg' ORDER BY id DESC LIMIT 0,1");
-
-			return $response['storage_mib'];
+			error_log(json_encode($response));
+			return $response;
 		}
 		
 		/**
