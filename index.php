@@ -119,7 +119,7 @@
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, date("Y")),
-					'info'   => 'Storage records for the current year for org ' . $org . '.'
+					'info'   => 'Storage records (MiB) for the current year for org ' . $org . '.'
 				));
 			}, $info),
 		]);
@@ -132,7 +132,7 @@
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, $year),
-					'info'   => 'Storage records for ' . $year . ' for org ' . $org . '.'
+					'info'   => 'Storage records (MiB) for ' . $year . ' for org ' . $org . '.'
 				));
 			}, $info),
 		]);
@@ -145,7 +145,7 @@
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, $year, $month),
-					'info'   => 'Storage records for month ' . $month . ' of '. $year . ' for org ' . $org . '.'
+					'info'   => 'Storage records (MiB) for month ' . $month . ' of '. $year . ' for org ' . $org . '.'
 				));
 			}, $info),
 		]);
@@ -157,7 +157,8 @@
 				verifyOrgAccess($org);
 				Response::result(array(
 					'status' => true,
-					'data'   => $mediasite->org()->orgDiskusageAvg($org)
+					'data'   => $mediasite->org()->orgDiskusageAvg($org),
+					'info'   => 'MiB'
 				));
 			}, $info),
 		]);
@@ -170,7 +171,7 @@
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusageAvg($org, $year),
-					'info'   => 'Average storage this year for org ' . $org . '.'
+					'info'   => 'Average storage (MiB) consumed in ' . $year . ' for org ' . $org . '.'
 				));
 			}, $info),
 		]);
@@ -196,7 +197,6 @@
 			));
 		}, $info);
 
-		
 		$info = "Latest storage record per org, in MiB (scope: admin).";
 		$router->addRoutes([
 			array('GET', '/admin/orgs/diskusage/list/', function () {
@@ -204,6 +204,30 @@
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->admin()->orgsLatestDiskUsage(),
+					'info'   => 'MiB'
+				));
+			}, $info),
+		]);
+
+		$info = "Average storage per org for current year, in MiB (scope: admin).";
+		$router->addRoutes([
+			array('GET', '/admin/orgs/diskusage/avg/list/', function () {
+				global $mediasite;
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->admin()->orgsDiskusageAvg(),
+					'info'   => 'MiB'
+				));
+			}, $info),
+		]);
+
+		$info = "Average storage per org for selected year, in MiB (scope: admin).";
+		$router->addRoutes([
+			array('GET', '/admin/orgs/diskusage/avg/[i:year]/list/', function ($year) {
+				global $mediasite;
+				Response::result(array(
+					'status' => true,
+					'data'   => $mediasite->admin()->orgsDiskusageAvg($year),
 					'info'   => 'MiB'
 				));
 			}, $info),

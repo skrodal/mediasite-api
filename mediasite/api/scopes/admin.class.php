@@ -39,4 +39,31 @@
 			// Done!
 			return $orgs;
 		}
+
+		public function orgsDiskusageAvg($year = NULL) {
+			if(is_null($year)) {
+				$year = date("Y");
+			}
+			// Complete dump of all records from $year
+			$response = $this->mySQLConnection->query("SELECT org, storage_mib FROM $this->orgStorageTable WHERE YEAR(timestamp) = $year ORDER BY org ASC");
+
+			$orgsListTemp = [];
+			$orgsList = [];
+
+			foreach($response as $record){
+				// Set or accumulate for each org
+				if(!isset($orgsListTemp[$record['org']])){
+					$orgsListTemp[$record['org']]['total_mib'] = $record['storage_mib'];
+					$orgsListTemp[$record['org']]['total_records'] = 1;
+				} else {
+					$orgsListTemp[$record['org']]['total_mib'] += $record['storage_mib'];
+					$orgsListTemp[$record['org']]['total_records']++;
+				}
+			}
+			foreach($orgsListTemp as $org){
+				$orgsList[$org['org']] = $org['org']['total_mib'] / $org['org']['total_records'];
+			}
+			//
+			return $orgsList;
+		}
 	}

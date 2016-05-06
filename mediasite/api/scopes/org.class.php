@@ -53,9 +53,8 @@
 			foreach($response as $storage) {
 				$totalStorage += $storage['storage_mib'];
 			}
-
 			//
-			return $totalStorage / sizeof( $response );
+			return $totalStorage / count( $response );
 		}
 
 	}
