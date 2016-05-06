@@ -80,8 +80,8 @@
 				"ORDER BY storage_mib ASC"
 			);
 			$storage  = array();
-			foreach($response as $key => $storage) {
-				$storage[] = $storage;
+			foreach($response as $key => $storage_mib) {
+				$storage[] = $storage_mib;
 			}
 
 			// Done!
