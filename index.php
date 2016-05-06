@@ -29,7 +29,7 @@
 	$router->setBasePath(Config::get('router')['api_base_path']);
 
 ##########################################################################
-# PUBLIC ROUTE DEFINITIONS
+# PUBLIC (BASIC SCOPE) ROUTE DEFINITIONS
 ##########################################################################
 
 	$info = "All available routes (scope: public).";
@@ -43,13 +43,13 @@
 	}, $info);
 
 
-	$info = "Total disk usage in MiB (scope: public).";
+	$info = "Total disk usage in MiB right now (scope: public).";
 	$router->addRoutes([
 		array('GET', '/service/diskusage/', function () {
 			global $mediasite;
 			Response::result(array(
 				'status' => true,
-				'data'   => $mediasite->mysqlGet()->totalDiskusageMiB(),
+				'data'   => $mediasite->basic->totalDiskusageMiB(),
 				'info'   => 'MiB'
 			));
 		}, $info),
@@ -61,7 +61,7 @@
 			global $mediasite;
 			Response::result(array(
 				'status' => true,
-				'data'   => $mediasite->mysqlGet()->totalAvgDiskusageMiB(date("Y")),
+				'data'   => $mediasite->basic->totalAvgDiskusageMiB(),
 				'info'   => 'MiB'
 			));
 		}, $info),
