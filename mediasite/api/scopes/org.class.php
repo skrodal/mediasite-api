@@ -1,6 +1,6 @@
 <?php
 	namespace Mediasite\Api\Scopes;
-	
+
 	use Mediasite\Auth\Dataporten;
 	use Mediasite\Database\MySQLConnection;
 
@@ -18,6 +18,27 @@
 			$this->mySQLConnection = new MySQLConnection();
 			$this->dataporten      = $dp;
 			$this->orgStorageTable = $this->mySQLConnection->getOrgStorageTableName();
+		}
+
+		/**
+		 * All storage entries for a single org.
+		 *
+		 * Filtered on year and (optionally) month.
+		 *
+		 * @return array
+		 */
+		public function orgDiskusage($org, $year, $month = NULL) {
+			if(is_null($month)) {
+				$response = $this->mySQLConnection->query("SELECT * FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
+			} else {
+				$response = $this->mySQLConnection->query("SELECT * FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year AND MONTH(timestamp) = $month");
+			}
+
+			$orgStorageRecords = array();
+			foreach($response as $record) {
+				$orgStorageRecords[] = $record;
+			}
+			return $orgStorageRecords;
 		}
 
 	}
