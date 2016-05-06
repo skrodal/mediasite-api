@@ -1,8 +1,9 @@
 <?php
 	namespace Mediasite\Api;
 
-	use Mediasite\Database\MySQLConnection;
 	use Mediasite\Auth\Dataporten;
+	use Mediasite\Database\MySQLConnection;
+	use Mediasite\Api\Scopes;
 
 
 	/**
@@ -24,15 +25,15 @@
 			$this->basic           = new Basic($this->dataporten, $this->mySQLConnection);
 		}
 
-		public function basic(){
+		public function basic() {
 			return $this->basic;
 		}
 
-		public function org(){
+		public function org() {
 			return $this->org;
 		}
 
-		public function admin(){
+		public function admin() {
 			return $this->admin;
 		}
 
