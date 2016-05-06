@@ -93,6 +93,18 @@
 		}, $info),
 	]);
 
+	$info = "Average total disk usage for [year] in MiB (scope: public).";
+	$router->addRoutes([
+		array('GET', '/service/diskusage/avg/[i:year]/', function ($year) {
+			global $mediasite;
+			Response::result(array(
+				'status' => true,
+				'data'   => $mediasite->basic()->totalAvgDiskusageMiB($year),
+				'info'   => 'MiB'
+			));
+		}, $info),
+	]);
+
 ##########################################################################
 # ADMIN ROUTE DEFINITIONS
 ##########################################################################
