@@ -43,17 +43,43 @@
 	}, $info);
 
 
-	$info = "Total disk usage in MiB right now (scope: public).";
+	$info = "List of orgs/folders with storage (scope: public).";
 	$router->addRoutes([
-		array('GET', '/service/diskusage/', function () {
+		array('GET', '/service/orgs/', function () {
 			global $mediasite;
 			Response::result(array(
 				'status' => true,
-				'data'   => $mediasite->basic->totalDiskusageMiB(),
+				'data'   => $mediasite->basic()->orgsList(),
+			));
+		}, $info),
+	]);
+
+	$info = "List of latest folder storage records (scope: public).";
+	$router->addRoutes([
+		array('GET', '/service/diskusage/list/', function () {
+			global $mediasite;
+			Response::result(array(
+				'status' => true,
+				'data'   => $mediasite->basic()->storageList(),
 				'info'   => 'MiB'
 			));
 		}, $info),
 	]);
+
+
+	$info = "Total disk usage in MiB right now (scope: public).";
+	$router->addRoutes([
+		array('GET', '/service/diskusage/total/', function () {
+			global $mediasite;
+			Response::result(array(
+				'status' => true,
+				'data'   => $mediasite->basic()->totalDiskusageMiB(),
+				'info'   => 'MiB'
+			));
+		}, $info),
+	]);
+
+
 
 	$info = "Average total disk usage this year in MiB (scope: public).";
 	$router->addRoutes([
@@ -61,7 +87,7 @@
 			global $mediasite;
 			Response::result(array(
 				'status' => true,
-				'data'   => $mediasite->basic->totalAvgDiskusageMiB(),
+				'data'   => $mediasite->basic()->totalAvgDiskusageMiB(),
 				'info'   => 'MiB'
 			));
 		}, $info),

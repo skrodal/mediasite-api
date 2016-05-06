@@ -1,6 +1,7 @@
 <?php
 	namespace Mediasite\Api;
 
+	use Mediasite\Database\MySQLConnection;
 	use Mediasite\Auth\Dataporten;
 
 
@@ -13,7 +14,7 @@
 	class Mediasite {
 
 		private $dataporten, $mySQLConnection;
-		private $admin, $org, $public;
+		private $admin, $org, $basic;
 
 		function __construct(Dataporten $dp) {
 			$this->dataporten      = $dp;
@@ -23,21 +24,16 @@
 			$this->basic           = new Basic($this->dataporten, $this->mySQLConnection);
 		}
 
-		// Route requests to correct scope (tidy)
-		public function scope($scope) {
-			switch($scope) {
-				case "admin":
-					return $this->admin;
-					break;
-				case "org":
-					return $this->org;
-					break;
-				case "basic":
-					return $this->basic;
-					break;
-				default:
-					return null;
-			}
+		public function basic(){
+			return $this->basic;
+		}
+
+		public function org(){
+			return $this->org;
+		}
+
+		public function admin(){
+			return $this->admin;
 		}
 
 		public function dp() {
