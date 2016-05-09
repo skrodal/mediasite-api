@@ -1,1 +1,1 @@
-Remove `_sample` and move files to path defined in `config.php` -> `$config_root`
+Slett `_sample` og flytt filer til path definert i `config.php` -> `$config_root`

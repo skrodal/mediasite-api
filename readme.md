@@ -1,5 +1,7 @@
 # Mediasite API
 
+_This API, which is tailor-made for UNINETT AS, uses in-house developed APIs/clients pertaining to specific use-cases. As it does **not** access Sonic Foundry's official Mediasite API, its re-usability is limited._
+
 REST-API for UNINETT Mediasite som muliggjør uthenting av informasjon knyttet til tjenesten og dens abonnenter.
 
 Eneste kildepunkt akkurat nå er lagringsstatistikk fra en UNINETT DB som er populert døgnlig via mediasite-disk-stats (se "Avhengigheter").
