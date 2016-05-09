@@ -1,0 +1,1 @@
+Remove `_sample` and move files to path defined in `config.php` -> `$config_root`
