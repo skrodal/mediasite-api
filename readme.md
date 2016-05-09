@@ -1,4 +1,4 @@
-# Mediasite API
+# Mediasite API #
 
 _This API, which is tailor-made for UNINETT AS, uses in-house developed APIs/clients pertaining to specific use-cases. As it does **not** access Sonic Foundry's official Mediasite API, its re-usability is limited._
 
@@ -8,7 +8,7 @@ Eneste kildepunkt akkurat nå er lagringsstatistikk fra en UNINETT DB som er pop
 
 Kan vurdere å plugge inn eCampus Kind API (https://github.com/skrodal/ecampus-kind-api), men gitt at Kind 2.0 er i farta er det lurt å avvente.
 
-## Scopes
+## Scopes ##
  
 * Public Scope (Dataporten `basic`)
 * Org Scope (Dataporten `org`)
@@ -18,12 +18,16 @@ APIet må registreres i Dataporten. En klient's tilgang til ruter styres av till
 
 Sjekk implementerte ruter i index.php.
 
-## Klient
+## Klient ##
 
 APIet er primært utviklet for bruk i MediasiteAdmin: https://github.com/skrodal/mediasite-admin
 
-## Avhengigheter
+## Avhengigheter ##
 
 - Dataporten
 - Alto Router
 - Mediasite DiskStats (https://github.com/skrodal/mediasite-disk-stats)
+
+### Annet ###
+
+Utviklet av Simon Skrødal
