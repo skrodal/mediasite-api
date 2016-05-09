@@ -1,38 +1,21 @@
 # Mediasite API
 
-REST-API for UNINETT Mediasite som muliggjør uthenting av informasjon knyttet til tjenesten og dens abonnenter/brukere.
+REST-API for UNINETT Mediasite som muliggjør uthenting av informasjon knyttet til tjenesten og dens abonnenter.
 
-Henter bl.a. ut lagringsstatistikk fra en UNINETT DB som er populert døgnlig via mediasite-disk-stats (se service). 
+Eneste kildepunkt akkurat nå er lagringsstatistikk fra en UNINETT DB som er populert døgnlig via mediasite-disk-stats (se "Avhengigheter").
 
-## Status
+Kan vurdere å plugge inn eCampus Kind API (https://github.com/skrodal/ecampus-kind-api), men gitt at Kind 2.0 er i farta er det lurt å avvente.
 
-02.05.2016: 
-
-`INCOMPLETE — WORK IN PROGRESS!` 
-
-Har satt sammen det som kreves av klasser, men ikke satt opp funksjonalitet for uthenting fra DB. API er registrert i Dataporten. 
-
-TODO: 
-
-1. Hente ut lagringsinfo fra DB
-2. Kutt ut bruk av ecampus-kind-api (da KIND fases ut ila. året). Bruk heller Dataporten sine ad-hoc grupper for tilgangsstyring. 
-3. Implementer ruter og plugg disse inn i MediasiteAdmin (client - også registrert i Dataporten).
-
-## Scopes
+## Dataporten Scopes
 
 ** Public Scope (Dataporten `basic`) **
-
-- Service info (version, workers, queue)
-
 ** Org Scope (Dataporten `org`) **
-
-- /org/ (presentations, users, user, employees, students)
-
 ** Superadmin Scope (Dataporten `admin`) **
 
-- Alt over samt /global/, /dev/
+Sjekk implementerte ruter i index.php.
 
 ## Avhengigheter
 
 - Dataporten
 - Alto Router
+- Mediasite DiskStats (https://github.com/skrodal/mediasite-disk-stats)
