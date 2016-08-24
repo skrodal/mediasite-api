@@ -65,7 +65,7 @@
 			));
 		}, $info),
 	]);
-	
+
 	$info = "Total disk usage in MiB right now (scope: public).";
 	$router->addRoutes([
 		array('GET', '/service/diskusage/total/', function () {
@@ -77,7 +77,7 @@
 			));
 		}, $info),
 	]);
-	
+
 	$info = "Average total disk usage this year in MiB (scope: public).";
 	$router->addRoutes([
 		array('GET', '/service/diskusage/avg/', function () {
@@ -115,15 +115,13 @@
 		}, $info),
 	]);
 
-
 ##########################################################################
 # ORG ROUTE DEFINITIONS
 ##########################################################################
 
-	//  At present, the client talks to Kind to check if logged on user is OrgAdmin.
-	//  Consider for this API to talk to ecampus-kind directly instead
+	//  At present, only the client talks to Kind to check if logged on user is OrgAdmin. The API only checks org.
+	//  Want to move away from this and determine access based on an Ad-Hoc Dataporten group instead.
 	if($dataporten->hasOauthScopeAdmin() || $dataporten->hasOauthScopeOrg()) { // TODO: Implement isOrgAdmin :: && ($dataporten->isOrgAdmin() || $dataporten->isSuperAdmin())) {
-		
 		$info = "Org diskusage history for the current year (scope: admin/org).";
 		$router->addRoutes([
 			array('GET', '/org/[a:org]/diskusage/list/', function ($org) {
@@ -158,7 +156,7 @@
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, $year, $month),
-					'info'   => 'Storage records (MiB) for month ' . $month . ' of '. $year . ' for org ' . $org . '.'
+					'info'   => 'Storage records (MiB) for month ' . $month . ' of ' . $year . ' for org ' . $org . '.'
 				));
 			}, $info),
 		]);
@@ -195,21 +193,8 @@
 # ADMIN ROUTE DEFINITIONS
 ##########################################################################
 
-	// isSuperAdmin added 15.10.2015 - need to be tested and considered carefully. Should we leave the clients to decide who is SuperAdmin, or
-	// hardcode in API, judging by 'uninett.no' in username (I prefer the latter)? The client can actually call this API to find out if user has role(s)
-	// super or org or user. simon@uninett.no should get:
-	// { roles : [super, org, user] }
-
+	// isSuperAdmin is anyone logged in with a UNINETT user. The client may run its own checks before allowing any calls to the below routes.
 	if($dataporten->hasOauthScopeAdmin() && $dataporten->isSuperAdmin()) {
-
-		$info = "Dev route to inspect headers (scope: admin).";
-		$router->map('GET', '/dev/headers/', function () {
-			Response::result(array(
-				'status' => true,
-				'data'   => $_SERVER
-			));
-		}, $info);
-
 		$info = "Latest storage record per org, in MiB (scope: admin).";
 		$router->addRoutes([
 			array('GET', '/admin/orgs/diskusage/list/', function () {
@@ -245,6 +230,23 @@
 				));
 			}, $info),
 		]);
+
+		$info = "Dev route to inspect headers (scope: admin).";
+		$router->map('GET', '/dev/headers/', function () {
+			Response::result(array(
+				'status' => true,
+				'data'   => $_SERVER
+			));
+		}, $info);
+
+		$info = "Dev route to inspect group API response (scope: admin).";
+		$router->map('GET', '/dev/groups/', function () {
+			global $dataporten;
+			Response::result(array(
+				'status' => true,
+				'data'   => $dataporten->hasGroupAccess()
+			));
+		}, $info);
 	}
 
 
@@ -256,7 +258,7 @@
 		sanitizeInput();
 		call_user_func_array($match['target'], $match['params']);
 	} else {
-		Response::error(404, $_SERVER["SERVER_PROTOCOL"] . " The requested resource route could not be found.");
+		Response::error(404, "The requested resource route could not be found.");
 	}
 	// ---------------------- /.MATCH AND EXECUTE REQUESTED ROUTE ----------------------
 
@@ -272,7 +274,7 @@
 	}
 
 	/**
-	 * Prevent orgAdmin to request data for other orgs than what he belongs to.
+	 * Prevent orgAdmin to request data for other orgs than what s/he belongs to.
 	 *
 	 * @param      $orgName
 	 * @param null $userName
@@ -284,13 +286,13 @@
 		if(!$dataporten->isSuperAdmin()) {
 			// If requested org data is not for home org
 			if(strcasecmp($orgName, $dataporten->userOrg()) !== 0) {
-				Response::error(401, $_SERVER["SERVER_PROTOCOL"] . ' 401 Unauthorized (request mismatch org/user). ');
+				Response::error(401, '401 Unauthorized (request mismatch org/user). ');
 			}
 			// If request involves a user account
 			if(isset($userName)) {
 				// Must be user from home org
 				if(!strstr($userName, $orgName)) {
-					Response::error(401, $_SERVER["SERVER_PROTOCOL"] . ' 401 Unauthorized (request mismatch org/user). ');
+					Response::error(401, '401 Unauthorized (request mismatch org/user). ');
 				}
 			}
 		}

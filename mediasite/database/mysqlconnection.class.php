@@ -34,7 +34,7 @@
 			$this->config = file_get_contents(Config::get('auth')['mediasite_mysql']);
 			// Sanity
 			if($this->config === false) {
-				Response::error(404, $_SERVER["SERVER_PROTOCOL"] . ' Not Found: MySQL config.');
+				Response::error(404, 'Not Found: MySQL config.');
 			}
 			//
 			return json_decode($this->config, true);
@@ -50,7 +50,7 @@
 			// If error code set
 			if($mysqli->connect_errno) {
 				Utils::log('MySQL Connect Error: ' . $mysqli->connect_error);   // Returns a string description of the last connect error
-				Response::error(500, $_SERVER["SERVER_PROTOCOL"] . ' DB connection failed (MySQL).');
+				Response::error(500, 'DB connection failed.');
 			}
 			return $mysqli;
 		}
@@ -77,7 +77,7 @@
 			// On error
 			if(!$response) {
 				Utils::log('MySQL Query Error: ' . $this->connection->error);
-				Response::error(500, $_SERVER["SERVER_PROTOCOL"] . ' DB query failed (MySQL).');
+				Response::error(500, 'DB query failed.');
 			}
 			//
 			Utils::log("Rows returned: " . $response->num_rows);

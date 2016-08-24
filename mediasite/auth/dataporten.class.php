@@ -18,22 +18,28 @@
 			$this->config = file_get_contents(Config::get('auth')['dataporten']);
 			// Sanity
 			if($this->config === false) {
-				Response::error(404, $_SERVER["SERVER_PROTOCOL"] . ' Not Found: Dataporten config.');
+				Response::error(404, ' Not Found: Dataporten config.');
 			}
 			// Dataporten username and pass
 			$this->config = json_decode($this->config, true);
 			// Exits on OPTION call
 			$this->_checkCORS();
-			// Make sure we have a scope
-			// (NOTE: 'basic' scope is implicit and not listed in HTTP_X_DATAPORTEN_SCOPES. This means that client MUST have access
-			// to at least ONE extra custom scope).
-			if(!isset($_SERVER["HTTP_X_DATAPORTEN_SCOPES"])) {
-				Response::error(401, $_SERVER["SERVER_PROTOCOL"] . ' Unauthorized (missing scope)');
-			}
-			// Check that username exists and is a Feide one... Function will exit if not.
-			$this->_getFeideUsername();
-			// Exits on incorrect credentials
+			// Exits on incorrect API credentials
 			$this->_checkGateKeeperCredentials();
+			// We also need a token (for later calls)
+			if(!isset($_SERVER["HTTP_X_DATAPORTEN_TOKEN"])) {
+				Response::error(401, 'Unauthorized (missing token)');
+			}
+			// Make sure we have a scope
+			// (NOTE: 'basic' scope is implicit and not listed in HTTP_X_DATAPORTEN_SCOPES.
+			// This means that client MUST have access to at least ONE extra custom scope).
+			if(!isset($_SERVER["HTTP_X_DATAPORTEN_SCOPES"])) {
+				Response::error(401, 'Unauthorized (missing scope)');
+			}
+			// Check that we got a username
+			if(!isset($_SERVER["HTTP_X_DATAPORTEN_USERID_SEC"])) {
+				Response::error(401, 'Unauthorized (user not found)');
+			}
 		}
 
 
@@ -48,6 +54,28 @@
 			}
 		}
 
+		private function _getUserGroups(){
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, 'https://groups-api.dataporten.no/groups/me/groups');
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			// Set headers
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+					"Authorization: Bearer " . $_SERVER["HTTP_X_DATAPORTEN_TOKEN"],
+					"Content-Type: application/json",
+				]
+			);
+			// Send the request
+			$userGroups = curl_exec($ch);
+			//
+			if(!$userGroups) {
+				Response::error(401, 'Unauthorized (failed to retrieve groups)');
+			}
+			curl_close($ch);
+			// All good
+			return $userGroups;
+		}
+
 		//
 
 		/**
@@ -60,10 +88,6 @@
 		 * This function takes care of all of these cases.
 		 */
 		private function _getFeideUsername() {
-			if(!isset($_SERVER["HTTP_X_DATAPORTEN_USERID_SEC"])) {
-				Response::error(401, $_SERVER["SERVER_PROTOCOL"] . ' Unauthorized (user not found)');
-			}
-
 			$userIdSec = NULL;
 			// Get the username(s)
 			$userid = $_SERVER["HTTP_X_DATAPORTEN_USERID_SEC"];
@@ -81,7 +105,7 @@
 			}
 			// No Feide...
 			if(!isset($userIdSec)) {
-				Response::error(401, $_SERVER["SERVER_PROTOCOL"] . ' Unauthorized (user not found)');
+				Response::error(401, 'Unauthorized (user not found)');
 			}
 
 			// 'username@org.no'
@@ -93,22 +117,18 @@
 
 		private function _checkGateKeeperCredentials() {
 			if(empty($_SERVER["PHP_AUTH_USER"]) || empty($_SERVER["PHP_AUTH_PW"])) {
-				Response::error(401, $_SERVER["SERVER_PROTOCOL"] . ' Unauthorized (Missing API Gatekeeper Credentials)');
+				Response::error(401, 'Unauthorized (Missing API Gatekeeper Credentials)');
 			}
-
 			// Gatekeeper. user/pwd is passed along by the Dataporten Gatekeeper and must matched that of the registered API:
 			if((strcmp($_SERVER["PHP_AUTH_USER"], $this->config['user']) !== 0) ||
 				(strcmp($_SERVER["PHP_AUTH_PW"], $this->config['passwd']) !== 0)
 			) {
 				// The status code will be set in the header
-				Response::error(401, $_SERVER["SERVER_PROTOCOL"] . ' Unauthorized (Incorrect API Gatekeeper Credentials)');
+				Response::error(401, 'Unauthorized (Incorrect API Gatekeeper Credentials)');
 			}
 		}
 
-		// TODO: isOrgAdmin -> need to connect to Kind API for this! Register access to ecampus-kind in Dataporten
-
 		// Feide username
-
 		public function hasOauthScopeAdmin() {
 			return $this->_hasDataportenScope("admin");
 		}
@@ -141,6 +161,18 @@
 
 		public function userName() {
 			return $this->_getFeideUsername();
+		}
+
+		// Check if user is member of group $this->config['group_id'],
+		public function hasGroupAccess(){
+			$userGroups = $this->_getUserGroups();
+
+			return $userGroups;
+
+
+			// TODO:
+			$this->config['group_id'];
+			$this->config['group_invite'];
 		}
 
 	}

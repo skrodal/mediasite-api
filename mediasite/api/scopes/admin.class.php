@@ -32,10 +32,11 @@
 				"WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) " .
 				"ORDER BY org ASC"
 			);
-			$orgs = array();
+			$orgs     = array();
 			foreach($response as $org) {
 				$orgs[] = $org;
 			}
+
 			// Done!
 			return $orgs;
 		}
@@ -44,6 +45,7 @@
 		 * List of average storage per org for a given year.
 		 *
 		 * @param null $year
+		 *
 		 * @return array
 		 */
 		public function orgsDiskusageAvg($year = NULL) {
@@ -54,12 +56,12 @@
 			$response = $this->mySQLConnection->query("SELECT org, storage_mib FROM $this->orgStorageTable WHERE YEAR(timestamp) = $year ORDER BY org ASC");
 
 			$orgsListTemp = [];
-			$orgsList = [];
+			$orgsList     = [];
 
-			foreach($response as $record){
+			foreach($response as $record) {
 				// Set or accumulate for each org
-				if(!isset($orgsListTemp[$record['org']])){
-					$orgsListTemp[$record['org']]['total_mib'] = $record['storage_mib'];
+				if(!isset($orgsListTemp[$record['org']])) {
+					$orgsListTemp[$record['org']]['total_mib']     = $record['storage_mib'];
 					$orgsListTemp[$record['org']]['total_records'] = 1;
 				} else {
 					$orgsListTemp[$record['org']]['total_mib'] += $record['storage_mib'];
@@ -67,9 +69,10 @@
 				}
 			}
 
-			foreach($orgsListTemp as $org => $orgObj){
+			foreach($orgsListTemp as $org => $orgObj) {
 				$orgsList[$org] = $orgObj['total_mib'] / $orgObj['total_records'];
 			}
+
 			//
 			return $orgsList;
 		}

@@ -1,5 +1,6 @@
 *.schema*
 *.idea*
 .dev
+etc/
 dataporten_config.js
 mysql_config.js
