@@ -73,7 +73,7 @@
 			}
 			curl_close($ch);
 			// All good
-			return $userGroups;
+			return json_decode($userGroups);
 		}
 
 		//
