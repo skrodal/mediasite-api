@@ -16,6 +16,8 @@
 		private $isOrgadmin = false;
 
 		function __construct() {
+			// Exits on OPTION call
+			$this->_checkCORS();
 			$this->config = file_get_contents(Config::get('auth')['dataporten']);
 			// Sanity
 			if($this->config === false) {
@@ -23,8 +25,6 @@
 			}
 			// Dataporten username and pass
 			$this->config = json_decode($this->config, true);
-			// Exits on OPTION call
-			$this->_checkCORS();
 			// Exits on incorrect API credentials
 			$this->_checkGateKeeperCredentials();
 			// We also need a token (for later calls)
@@ -46,10 +46,9 @@
 		}
 
 
-		##				SCOPES				##
-
-		//
-
+		/**
+		 * Approve initial CORS request.
+		 */
 		private function _checkCORS() {
 			// Access-Control headers are received during OPTIONS requests
 			if(strcasecmp($_SERVER['REQUEST_METHOD'], "OPTIONS") === 0) {
@@ -57,6 +56,11 @@
 			}
 		}
 
+		/**
+		 * Check that client credentials sent from Dataporten's GK match this APIs creds.
+		 *
+		 * Exits if there are any issues.
+		 */
 		private function _checkGateKeeperCredentials() {
 			if(empty($_SERVER["PHP_AUTH_USER"]) || empty($_SERVER["PHP_AUTH_PW"])) {
 				Response::error(401, 'Unauthorized (Missing API Gatekeeper Credentials)');
@@ -70,8 +74,11 @@
 			}
 		}
 
-		//
-
+		/**
+		 * Query the Dataporten Groups API for logged on user's MediasiteAdmin group membership status
+		 * Called once by constructor.
+		 * @return bool
+		 */
 		private function _getOrgAdminStatus() {
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, 'https://groups-api.dataporten.no/groups/me/groups/' . $this->config['group_id']);
@@ -83,7 +90,7 @@
 					"Content-Type: application/json",
 				]
 			);
-			// Send the request
+			// Send the request, don't really care about the response for now, only HTTP code
 			$response = curl_exec($ch);
 			//
 			if(curl_errno($ch)) {
@@ -93,20 +100,23 @@
 			$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			//
 			curl_close($ch);
-
 			// code will be 200 if member, 404 otherwise
 			return $httpcode == 200;
 		}
 
-		##				SCOPES				##
-		// 
-
+		/**
+		 * Checks if calling client has access to the admin scope
+		 * @return bool
+		 */
 		public function hasOauthScopeAdmin() {
 			return $this->_hasDataportenScope("admin");
 		}
 
-		// Feide username
-
+		/**
+		 * Loop and match requested scope with what Dataporten sent over in the headers.
+		 * @param $scope
+		 * @return bool
+		 */
 		private function _hasDataportenScope($scope) {
 			// Get the scope(s)
 			$scopes = $_SERVER["HTTP_X_DATAPORTEN_SCOPES"];
@@ -117,34 +127,59 @@
 			return in_array($scope, $scopes);
 		}
 
+		/**
+		 * Checks if calling client has access to the org scope
+		 * @return bool
+		 */
 		public function hasOauthScopeOrg() {
 			return $this->_hasDataportenScope("org");
 		}
 
+		/**
+		 * A super/org admin may access the invitation link to the MediasiteAdmin group.
+		 * The link may be sent to users they think should be granted orgAdmin privilege
+		 * for their org.
+		 *
+		 * @return bool
+		 */
 		public function adminGroupInviteLink() {
 			if($this->isOrgAdmin() || $this->isSuperAdmin()) {
 				return $this->config['group_invite'];
 			}
-
-			return "No access";
+			//
+			return false;
 		}
 
-		// Query the Dataporten Groups API for logged on user's MediasiteAdmin group membership status
-
+		/**
+		 * Check MediasiteAdmin group membership.
+		 * @return bool
+		 */
 		public function isOrgAdmin() {
 			return $this->isOrgadmin;
 		}
 
+		/**
+		 * Any UNINETT user === SuperAdmin.
+		 * @return bool
+		 */
 		public function isSuperAdmin() {
 			return strcasecmp($this->userOrg(), "uninett.no") === 0;
 		}
 
+		/**
+		 * {orgname}.no
+		 * @return mixed
+		 */
 		public function userOrg() {
 			$userOrg = explode('@', $this->userName());
 
 			return $userOrg[1];
 		}
 
+		/**
+		 * Feide username (userid_sec from Dataporten).
+		 * @return null
+		 */
 		public function userName() {
 			return $this->_getFeideUsername();
 		}
@@ -174,7 +209,7 @@
 					$userIdSec = $value[1];
 				}
 			}
-			// No Feide...
+			// Exit if no Feide username was found.
 			if(!isset($userIdSec)) {
 				Response::error(401, 'Unauthorized (user not found)');
 			}
