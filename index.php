@@ -271,7 +271,7 @@
 			global $dataporten;
 			Response::result(array(
 				'status' => true,
-				'data'   => $dataporten->hasGroupAccess()
+				'data'   => [$dataporten->isOrgAdmin(), $dataporten->adminGroupInviteLink()]
 			));
 		}, $info);
 	}
