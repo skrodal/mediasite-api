@@ -12,7 +12,8 @@
 
 	class Dataporten {
 
-		protected $config;
+		private $config;
+		private $isOrgadmin = false;
 
 		function __construct() {
 			$this->config = file_get_contents(Config::get('auth')['dataporten']);
@@ -40,6 +41,8 @@
 			if(!isset($_SERVER["HTTP_X_DATAPORTEN_USERID_SEC"])) {
 				Response::error(401, 'Unauthorized (user not found)');
 			}
+			// Check if user is member of MediasiteAdmin group
+			$this->isOrgadmin = $this->_getOrgAdminStatus();
 		}
 
 
@@ -54,9 +57,24 @@
 			}
 		}
 
-		private function _getUserGroups(){
+		private function _checkGateKeeperCredentials() {
+			if(empty($_SERVER["PHP_AUTH_USER"]) || empty($_SERVER["PHP_AUTH_PW"])) {
+				Response::error(401, 'Unauthorized (Missing API Gatekeeper Credentials)');
+			}
+			// Gatekeeper. user/pwd is passed along by the Dataporten Gatekeeper and must matched that of the registered API:
+			if((strcmp($_SERVER["PHP_AUTH_USER"], $this->config['user']) !== 0) ||
+				(strcmp($_SERVER["PHP_AUTH_PW"], $this->config['passwd']) !== 0)
+			) {
+				// The status code will be set in the header
+				Response::error(401, 'Unauthorized (Incorrect API Gatekeeper Credentials)');
+			}
+		}
+
+		//
+
+		private function _getOrgAdminStatus() {
 			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, 'https://groups-api.dataporten.no/groups/me/groups');
+			curl_setopt($ch, CURLOPT_URL, 'https://groups-api.dataporten.no/groups/me/groups/' . $this->config['group_id']);
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			// Set headers
@@ -66,17 +84,70 @@
 				]
 			);
 			// Send the request
-			$userGroups = curl_exec($ch);
+			$response = curl_exec($ch);
 			//
-			if(!$userGroups) {
-				Response::error(401, 'Unauthorized (failed to retrieve groups)');
+			if(curl_errno($ch)) {
+				return false;
 			}
+			//
+			$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			//
 			curl_close($ch);
-			// All good
-			return json_decode($userGroups);
+
+			// code will be 200 if member, 404 otherwise
+			return $httpcode == 200;
 		}
 
-		//
+		##				SCOPES				##
+		// 
+
+		public function hasOauthScopeAdmin() {
+			return $this->_hasDataportenScope("admin");
+		}
+
+		// Feide username
+
+		private function _hasDataportenScope($scope) {
+			// Get the scope(s)
+			$scopes = $_SERVER["HTTP_X_DATAPORTEN_SCOPES"];
+			// Make array
+			$scopes = explode(',', $scopes);
+
+			// True/false
+			return in_array($scope, $scopes);
+		}
+
+		public function hasOauthScopeOrg() {
+			return $this->_hasDataportenScope("org");
+		}
+
+		public function adminGroupInviteLink() {
+			if($this->isOrgAdmin() || $this->isSuperAdmin()) {
+				return $this->config['group_invite'];
+			}
+
+			return "No access";
+		}
+
+		// Query the Dataporten Groups API for logged on user's MediasiteAdmin group membership status
+
+		public function isOrgAdmin() {
+			return $this->isOrgadmin;
+		}
+
+		public function isSuperAdmin() {
+			return strcasecmp($this->userOrg(), "uninett.no") === 0;
+		}
+
+		public function userOrg() {
+			$userOrg = explode('@', $this->userName());
+
+			return $userOrg[1];
+		}
+
+		public function userName() {
+			return $this->_getFeideUsername();
+		}
 
 		/**
 		 * Gets the feide username (if present) from the Gatekeeper via HTTP_X_DATAPORTEN_USERID_SEC.
@@ -111,68 +182,4 @@
 			// 'username@org.no'
 			return $userIdSec;
 		}
-
-		##				SCOPES				##
-		// 
-
-		private function _checkGateKeeperCredentials() {
-			if(empty($_SERVER["PHP_AUTH_USER"]) || empty($_SERVER["PHP_AUTH_PW"])) {
-				Response::error(401, 'Unauthorized (Missing API Gatekeeper Credentials)');
-			}
-			// Gatekeeper. user/pwd is passed along by the Dataporten Gatekeeper and must matched that of the registered API:
-			if((strcmp($_SERVER["PHP_AUTH_USER"], $this->config['user']) !== 0) ||
-				(strcmp($_SERVER["PHP_AUTH_PW"], $this->config['passwd']) !== 0)
-			) {
-				// The status code will be set in the header
-				Response::error(401, 'Unauthorized (Incorrect API Gatekeeper Credentials)');
-			}
-		}
-
-		// Feide username
-		public function hasOauthScopeAdmin() {
-			return $this->_hasDataportenScope("admin");
-		}
-
-		// org.no
-
-		private function _hasDataportenScope($scope) {
-			// Get the scope(s)
-			$scopes = $_SERVER["HTTP_X_DATAPORTEN_SCOPES"];
-			// Make array
-			$scopes = explode(',', $scopes);
-
-			// True/false
-			return in_array($scope, $scopes);
-		}
-
-		public function hasOauthScopeOrg() {
-			return $this->_hasDataportenScope("org");
-		}
-
-		public function isSuperAdmin() {
-			return strcasecmp($this->userOrg(), "uninett.no") === 0;
-		}
-
-		public function userOrg() {
-			$userOrg = explode('@', $this->userName());
-
-			return $userOrg[1];
-		}
-
-		public function userName() {
-			return $this->_getFeideUsername();
-		}
-
-		// Check if user is member of group $this->config['group_id'],
-		public function hasGroupAccess(){
-			$userGroups = $this->_getUserGroups();
-
-			return $userGroups;
-
-
-			// TODO:
-			$this->config['group_id'];
-			$this->config['group_invite'];
-		}
-
 	}

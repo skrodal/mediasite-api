@@ -35,13 +35,20 @@
 	$info = "All available routes (scope: public).";
 	$router->map('GET', '/', function () {
 		global $router;
-		// TODO: Show only routes available according to scope
 		Response::result(array(
 			'status' => true,
 			'data'   => $router->getRoutes()
 		));
 	}, $info);
 
+	$info = "Verify that logged on user is member of the MediasiteAdmin group";
+	$router->map('GET', '/', function () {
+		global $dataporten;
+		Response::result(array(
+			'status' => true,
+			'data'   => $dataporten->isOrgAdmin()
+		));
+	}, $info);
 
 	$info = "List of orgs/folders with storage. No values are inluded, folder names only (scope: public).";
 	$router->addRoutes([
@@ -119,14 +126,34 @@
 # ORG ROUTE DEFINITIONS
 ##########################################################################
 
-	//  At present, only the client talks to Kind to check if logged on user is OrgAdmin. The API only checks org.
-	//  Want to move away from this and determine access based on an Ad-Hoc Dataporten group instead.
-	if($dataporten->hasOauthScopeAdmin() || $dataporten->hasOauthScopeOrg()) { // TODO: Implement isOrgAdmin :: && ($dataporten->isOrgAdmin() || $dataporten->isSuperAdmin())) {
+	/**
+	 * Every org route will, via verifyOrgAndUserAccess($org), check that the user
+	 *
+	 * 1. is orgAdmin (member of MediasiteAdmin Dataporten group) and
+	 * 2. is affiliated with the $org requested.
+	 *
+	 * The client also needs access to either the admin or org API scope.
+	 */
+	if($dataporten->hasOauthScopeAdmin() || $dataporten->hasOauthScopeOrg()) {
+
+		// So that org admins can invite others to be org admins.
+		$info = "Get invitation link to MediasiteAdmin group (scope: admin/org).";
+		$router->addRoutes([
+			array('GET', '/org/[a:org]/orgadmin/invitationurl/', function ($org) {
+				global $dataporten;
+				verifyOrgAndUserAccess($org);
+				Response::result(array(
+					'status' => true,
+					'data'   => $dataporten->adminGroupInviteLink()
+				));
+			}, $info),
+		]);
+
 		$info = "Org diskusage history for the current year (scope: admin/org).";
 		$router->addRoutes([
 			array('GET', '/org/[a:org]/diskusage/list/', function ($org) {
 				global $mediasite;
-				verifyOrgAccess($org);
+				verifyOrgAndUserAccess($org);
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, date("Y")),
@@ -139,7 +166,7 @@
 		$router->addRoutes([
 			array('GET', '/org/[a:org]/diskusage/list/[i:year]/', function ($org, $year) {
 				global $mediasite;
-				verifyOrgAccess($org);
+				verifyOrgAndUserAccess($org);
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, $year),
@@ -152,7 +179,7 @@
 		$router->addRoutes([
 			array('GET', '/org/[a:org]/diskusage/list/[i:year]/[i:month]/', function ($org, $year, $month) {
 				global $mediasite;
-				verifyOrgAccess($org);
+				verifyOrgAndUserAccess($org);
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusage($org, $year, $month),
@@ -165,7 +192,7 @@
 		$router->addRoutes([
 			array('GET', '/org/[a:org]/diskusage/avg/', function ($org) {
 				global $mediasite;
-				verifyOrgAccess($org);
+				verifyOrgAndUserAccess($org);
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusageAvg($org),
@@ -178,7 +205,7 @@
 		$router->addRoutes([
 			array('GET', '/org/[a:org]/diskusage/avg/[i:year]/', function ($org, $year) {
 				global $mediasite;
-				verifyOrgAccess($org);
+				verifyOrgAndUserAccess($org);
 				Response::result(array(
 					'status' => true,
 					'data'   => $mediasite->org()->orgDiskusageAvg($org, $year),
@@ -276,24 +303,22 @@
 	/**
 	 * Prevent orgAdmin to request data for other orgs than what s/he belongs to.
 	 *
+	 * Also check that the user is member of the MediasiteAdmin group.
+	 *
 	 * @param      $orgName
-	 * @param null $userName
 	 */
-	function verifyOrgAccess($orgName, $userName = NULL) {
+	function verifyOrgAndUserAccess($orgName) {
 		global $dataporten;
-
 		// Restrictions apply, unless you're superadmin...
 		if(!$dataporten->isSuperAdmin()) {
 			// If requested org data is not for home org
 			if(strcasecmp($orgName, $dataporten->userOrg()) !== 0) {
 				Response::error(401, '401 Unauthorized (request mismatch org/user). ');
 			}
-			// If request involves a user account
-			if(isset($userName)) {
-				// Must be user from home org
-				if(!strstr($userName, $orgName)) {
-					Response::error(401, '401 Unauthorized (request mismatch org/user). ');
-				}
+
+			// If user is not an orgAdmin
+			if(!$dataporten->isOrgAdmin()) {
+				Response::error(401, '401 Unauthorized (user is not member of the MediasiteAdmin group). ');
 			}
 		}
 	}
