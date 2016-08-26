@@ -13,7 +13,7 @@
 	class Dataporten {
 
 		private $config;
-		private $isOrgadmin = false;
+		private $isOrgAdmin = false;
 
 		function __construct() {
 			// Exits on OPTION call
@@ -42,7 +42,7 @@
 				Response::error(401, 'Unauthorized (user not found)');
 			}
 			// Check if user is member of MediasiteAdmin group
-			$this->isOrgadmin = $this->_getOrgAdminStatus();
+			$this->isOrgAdmin = $this->_getOrgAdminStatus();
 		}
 
 
@@ -150,12 +150,18 @@
 			return false;
 		}
 
+		public function userRole(){
+			if($this->isSuperAdmin()) return "SuperAdmin";
+			else if($this->isOrgAdmin()) return "OrgAdmin";
+			else return "Basic";
+		}
+
 		/**
 		 * Check MediasiteAdmin group membership.
 		 * @return bool
 		 */
 		public function isOrgAdmin() {
-			return $this->isOrgadmin;
+			return $this->isOrgAdmin;
 		}
 
 		/**

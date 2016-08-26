@@ -41,12 +41,12 @@
 		));
 	}, $info);
 
-	$info = "Verify that logged on user is member of the MediasiteAdmin group";
-	$router->map('GET', '/', function () {
+	$info = "Verify that logged on user is Super Admin or Org Admin (member of the MediasiteAdmin group)";
+	$router->map('GET', '/me/role/', function () {
 		global $dataporten;
 		Response::result(array(
 			'status' => true,
-			'data'   => $dataporten->isOrgAdmin()
+			'data'   => $dataporten->userRole()
 		));
 	}, $info);
 
