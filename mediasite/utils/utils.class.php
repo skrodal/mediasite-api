@@ -28,12 +28,11 @@
 			$TTL = $TTL ? $TTL : Config::get('cache')['TTL'];
 			apc_store('MEDIASITE_API.' . $entryName, $data, $TTL);
 		}
-
 		/**
 		 * Returns data from cache if available, or false otherwise.
-		 *
 		 * @param $entryName
-		 * @return bool
+		 *
+		 * @return bool|mixed
 		 */
 		public static function loadFromCache($entryName){
 			if(!apc_exists('MEDIASITE_API.' . $entryName)) {

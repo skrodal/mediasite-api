@@ -27,8 +27,8 @@
 		 * @return array
 		 */
 		public function orgsLatestDiskUsage() {
-			if(!Utils::loadFromCache('admin.orgs.diskusage.list')){
-				Utils::log('admin.orgs.diskusage.list => NOT found in cache');
+			$cacheKey = 'admin.orgs.diskusage.list';
+			if(!Utils::loadFromCache($cacheKey)){
 				// Last distinct orgs (hence last timestamp)
 				$response = $this->mySQLConnection->query(
 					"SELECT org, storage_mib FROM $this->orgStorageTable " .
@@ -39,12 +39,9 @@
 				foreach($response as $org) {
 					$orgs[] = $org;
 				}
-				Utils::storeToCache('admin.orgs.diskusage.list', $orgs);
-			} else {
-				Utils::log('admin.orgs.diskusage.list => was found in cache');
+				Utils::storeToCache($cacheKey, $orgs);
 			}
-			Utils::log('Returning admin.orgs.diskusage.list from cache');
-			return Utils::loadFromCache('admin.orgs.diskusage.list');
+			return Utils::loadFromCache($cacheKey);
 		}
 
 		/**
@@ -58,28 +55,32 @@
 			if(is_null($year)) {
 				$year = date("Y");
 			}
-			// Complete dump of all records from $year
-			$response = $this->mySQLConnection->query("SELECT org, storage_mib FROM $this->orgStorageTable WHERE YEAR(timestamp) = $year ORDER BY org ASC");
-
-			$orgsListTemp = [];
-			$orgsList     = [];
-
-			foreach($response as $record) {
-				// Set or accumulate for each org
-				if(!isset($orgsListTemp[$record['org']])) {
-					$orgsListTemp[$record['org']]['total_mib']     = $record['storage_mib'];
-					$orgsListTemp[$record['org']]['total_records'] = 1;
-				} else {
-					$orgsListTemp[$record['org']]['total_mib'] += $record['storage_mib'];
-					$orgsListTemp[$record['org']]['total_records']++;
+			$cacheKey = 'admin.orgs.diskusage.avg.list.' . $year;
+			if(!Utils::loadFromCache($cacheKey)){
+				// Complete dump of all records from $year
+				$response = $this->mySQLConnection->query("SELECT org, storage_mib FROM $this->orgStorageTable WHERE YEAR(timestamp) = $year ORDER BY org ASC");
+				//
+				$orgsListTemp = [];
+				$orgsList     = [];
+				//
+				foreach($response as $record) {
+					// Set or accumulate for each org
+					if(!isset($orgsListTemp[$record['org']])) {
+						$orgsListTemp[$record['org']]['total_mib']     = $record['storage_mib'];
+						$orgsListTemp[$record['org']]['total_records'] = 1;
+					} else {
+						$orgsListTemp[$record['org']]['total_mib'] += $record['storage_mib'];
+						$orgsListTemp[$record['org']]['total_records']++;
+					}
 				}
+				//
+				foreach($orgsListTemp as $org => $orgObj) {
+					$orgsList[$org] = $orgObj['total_mib'] / $orgObj['total_records'];
+				}
+				//
+				Utils::storeToCache($cacheKey, $orgsList);
 			}
-
-			foreach($orgsListTemp as $org => $orgObj) {
-				$orgsList[$org] = $orgObj['total_mib'] / $orgObj['total_records'];
-			}
-
 			//
-			return $orgsList;
+			return Utils::loadFromCache($cacheKey);
 		}
 	}

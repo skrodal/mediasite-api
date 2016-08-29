@@ -70,8 +70,6 @@
 		 * @return array
 		 */
 		public function query($query) {
-			//
-			Utils::log("Running query: ". $query);
 			// Run query
 			$response = $this->connection->query($query);
 			// On error
@@ -79,8 +77,6 @@
 				Utils::log('MySQL Query Error: ' . $this->connection->error);
 				Response::error(500, 'DB query failed.');
 			}
-			//
-			Utils::log("Rows returned: " . $response->num_rows);
 			// For storing returned rows
 			$rows = array();
 			while($r = $response->fetch_assoc()) {
