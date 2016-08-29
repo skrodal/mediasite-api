@@ -21,7 +21,7 @@
 				'mediasite_mysql' => $config_root . 'mysql_config.js',
 			],
 			'utils'  => [
-				'debug' => true
+				'debug' => false
 			],
 			'cache'  => [
 				'enable' => true,

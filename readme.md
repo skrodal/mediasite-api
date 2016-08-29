@@ -30,4 +30,6 @@ APIet er primært utviklet for bruk i MediasiteAdmin: https://github.com/skrodal
 
 ### Annet ###
 
+- Caching er lagt til (APC) - kan slåes av i config
+
 Utviklet av Simon Skrødal
