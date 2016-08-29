@@ -17,6 +17,7 @@
 	use Mediasite\Auth\Dataporten;
 	use Mediasite\Conf\Config;
 	use Mediasite\Utils\Response;
+	use Mediasite\Utils\Utils;
 	use Mediasite\Vendor\Router;
 
 	// Gatekeeper and provider of useful info
@@ -27,6 +28,11 @@
 	### 	  ALTO ROUTER 		###
 	$router = new Router();
 	$router->setBasePath(Config::get('router')['api_base_path']);
+
+	// Flush cache if disabled
+	if(Config::get('cache')['enable'] !== true){
+		Utils::flushCache();
+	}
 
 ##########################################################################
 # PUBLIC (BASIC SCOPE) ROUTE DEFINITIONS

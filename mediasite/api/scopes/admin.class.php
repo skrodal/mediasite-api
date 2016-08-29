@@ -3,6 +3,7 @@
 
 	use Mediasite\Auth\Dataporten;
 	use Mediasite\Database\MySQLConnection;
+	use Mediasite\Utils\Utils;
 
 	/**
 	 * Implements APIs GET routes for the ADMIN scope.
@@ -26,19 +27,24 @@
 		 * @return array
 		 */
 		public function orgsLatestDiskUsage() {
-			// Last distinct orgs (hence last timestamp)
-			$response = $this->mySQLConnection->query(
-				"SELECT org, storage_mib FROM $this->orgStorageTable " .
-				"WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) " .
-				"ORDER BY org ASC"
-			);
-			$orgs     = array();
-			foreach($response as $org) {
-				$orgs[] = $org;
+			if(!Utils::loadFromCache('admin.orgs.diskusage.list')){
+				Utils::log('admin.orgs.diskusage.list => NOT found in cache');
+				// Last distinct orgs (hence last timestamp)
+				$response = $this->mySQLConnection->query(
+					"SELECT org, storage_mib FROM $this->orgStorageTable " .
+					"WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) " .
+					"ORDER BY org ASC"
+				);
+				$orgs     = array();
+				foreach($response as $org) {
+					$orgs[] = $org;
+				}
+				Utils::storeToCache('admin.orgs.diskusage.list', $orgs);
+			} else {
+				Utils::log('admin.orgs.diskusage.list => was found in cache');
 			}
-
-			// Done!
-			return $orgs;
+			Utils::log('Returning admin.orgs.diskusage.list from cache');
+			return Utils::loadFromCache('admin.orgs.diskusage.list');
 		}
 
 		/**
