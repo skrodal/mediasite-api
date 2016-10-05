@@ -16,7 +16,7 @@
 		private $orgStorageTable;
 
 		function __construct(Dataporten $dp, mySQLConnection $conn) {
-			$this->mySQLConnection = new MySQLConnection();
+			$this->mySQLConnection = $conn;
 			$this->dataporten      = $dp;
 			$this->orgStorageTable = $this->mySQLConnection->getOrgStorageTableName();
 		}
