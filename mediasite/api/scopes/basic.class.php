@@ -74,23 +74,32 @@
 		 */
 		public function storageList() {
 			// Last distinct orgs (hence last timestamp)
+			/* SLOOOOOW!!!
+						$response = $this->mySQLConnection->query("
+							SELECT storage_mib FROM $this->orgStorageTable
+							WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org)
+							ORDER BY storage_mib ASC
+						");
+			*/
 
-/*
+			// Query for records from today
 			$response = $this->mySQLConnection->query("
-				SELECT storage_mib FROM $this->orgStorageTable
-				WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) 
+				SELECT storage_mib 
+				FROM $this->orgStorageTable
+				WHERE DATE(timestamp) = CURDATE()
 				ORDER BY storage_mib ASC
 			");
-*/
-
-			$response = $this->mySQLConnection->query("
+			// If today returned no records, query list from yesterday
+			if(empty($response)) {
+				$response = $this->mySQLConnection->query("
 				SELECT storage_mib 
 				FROM $this->orgStorageTable
 				WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND timestamp < CURDATE()
 				ORDER BY storage_mib ASC
 			");
+			}
 
-			$storage  = array();
+			$storage = array();
 			foreach($response as $storage_mib) {
 				$storage[] = (int)$storage_mib['storage_mib'];
 			}
