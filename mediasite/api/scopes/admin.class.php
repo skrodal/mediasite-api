@@ -2,6 +2,7 @@
 	namespace Mediasite\Api\Scopes;
 
 	use Mediasite\Auth\Dataporten;
+	use Mediasite\Conf\Config;
 	use Mediasite\Database\MySQLConnection;
 	use Mediasite\Utils\Utils;
 
