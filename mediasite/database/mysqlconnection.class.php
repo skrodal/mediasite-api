@@ -22,7 +22,7 @@
 
 		public function __construct() {
 			echo "__construct MySQL";
-			$this->config = json_decode(file_get_contents(Config::get('auth')['mediasite_mysql'], true));
+			$this->config = json_decode(file_get_contents(Config::get('auth')['mediasite_mysql']), true);
 			if($this->config === false) {
 				Response::error(404, 'Not Found: MySQL config.');
 			}
