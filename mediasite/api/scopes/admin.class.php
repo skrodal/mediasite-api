@@ -27,10 +27,18 @@
 		 */
 		public function orgsLatestDiskUsage() {
 			// Last distinct orgs (hence last timestamp)
-
+/*
 			$response = $this->mySQLConnection->query("
 				SELECT org, storage_mib FROM $this->orgStorageTable
 				WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) 
+				ORDER BY org ASC
+			");
+*/
+
+			$response = $this->mySQLConnection->query("
+				SELECT org, storage_mib 
+				FROM $this->orgStorageTable
+				WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND timestamp < CURDATE()
 				ORDER BY org ASC
 			");
 /*
