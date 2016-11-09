@@ -2,9 +2,7 @@
 	namespace Mediasite\Api\Scopes;
 
 	use Mediasite\Auth\Dataporten;
-	use Mediasite\Conf\Config;
 	use Mediasite\Database\MySQLConnection;
-	use Mediasite\Utils\Utils;
 
 	/**
 	 * Implements APIs GET routes for the ORG scope.
@@ -35,31 +33,24 @@
 		 */
 		public function orgDiskusage($org, $year, $month = NULL) {
 			$orgStorageRecords = array();
-			$cacheKey = 'org.' . $org . '.diskusage.list.' . $year;
 			//
 			if(is_null($month)) {
 				// Whole year
-				if(!Utils::loadFromCache($cacheKey)) {
-					$response = $this->mySQLConnection->query("SELECT storage_mib, timestamp FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
-					foreach($response as $record) {
-						settype($record['storage_mib'], "integer");
-						$orgStorageRecords[] = $record;
-					}
-					Utils::storeToCache($cacheKey, $orgStorageRecords);
+				$response = $this->mySQLConnection->query("SELECT storage_mib, timestamp FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
+				foreach($response as $record) {
+					settype($record['storage_mib'], "integer");
+					$orgStorageRecords[] = $record;
 				}
 			} else {
-				$cacheKey = $cacheKey . '.' . $month;
 				// Month only
-				if(!Utils::loadFromCache($cacheKey)) {
-					$response = $this->mySQLConnection->query("SELECT storage_mib, timestamp FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year AND MONTH(timestamp) = $month");
-					foreach($response as $record) {
-						settype($record['storage_mib'], "integer");
-						$orgStorageRecords[] = $record;
-					}
-					Utils::storeToCache($cacheKey, $orgStorageRecords);
+				$response = $this->mySQLConnection->query("SELECT storage_mib, timestamp FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year AND MONTH(timestamp) = $month");
+				foreach($response as $record) {
+					settype($record['storage_mib'], "integer");
+					$orgStorageRecords[] = $record;
 				}
 			}
-			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $orgStorageRecords;
+
+			return $orgStorageRecords;
 		}
 
 		/**
@@ -72,22 +63,14 @@
 			if(is_null($year)) {
 				$year = date("Y");
 			}
-			$cacheKey = 'org.' . $org . '.diskusage.avg.' . $year;
-			$avg = 0;
-
-			if(!Utils::loadFromCache($cacheKey)) {
-				// All records for org from selected year
-				$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
-				//
-				$totalStorage = 0;
-				foreach($response as $storage) {
-					$totalStorage += $storage['storage_mib'];
-				}
-				$avg = $totalStorage / count( $response );
-				Utils::storeToCache($cacheKey, $avg);
+			// All records for org from selected year
+			$response     = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$org' AND YEAR(timestamp) = $year");
+			$totalStorage = 0;
+			foreach($response as $storage) {
+				$totalStorage += $storage['storage_mib'];
 			}
-			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $avg;
-		}
 
+			return $totalStorage / count($response);
+		}
 	}
 

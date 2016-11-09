@@ -22,10 +22,6 @@
 			],
 			'utils'  => [
 				'debug' => false
-			],
-			'cache'  => [
-				'enable' => !true,
-			    'TTL' => 3600
 			]
 		]);
 

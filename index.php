@@ -29,10 +29,6 @@
 	$router = new Router();
 	$router->setBasePath(Config::get('router')['api_base_path']);
 
-	// Flush cache if disabled
-	if(Config::get('cache')['enable'] !== true){
-		Utils::flushCache();
-	}
 
 ##########################################################################
 # PUBLIC (BASIC SCOPE) ROUTE DEFINITIONS

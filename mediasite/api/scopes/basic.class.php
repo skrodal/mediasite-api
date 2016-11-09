@@ -2,9 +2,7 @@
 	namespace Mediasite\Api\Scopes;
 
 	use Mediasite\Auth\Dataporten;
-	use Mediasite\Conf\Config;
 	use Mediasite\Database\MySQLConnection;
-	use Mediasite\Utils\Utils;
 
 	/**
 	 * Implements APIs GET routes for the BASIC scope.
@@ -32,15 +30,9 @@
 		public function homeOrgDiskusageTotal() {
 			$homeOrg  = explode('.', $this->dataporten->userOrg());
 			$homeOrg  = $homeOrg[0];
-			$cacheKey = $homeOrg . '.diskusage.total';
-			//
-			if(!Utils::loadFromCache($cacheKey)) {
-				$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$homeOrg' ORDER BY id DESC LIMIT 0,1");
-				$total    = (int)$response[0]['storage_mib'];
-				Utils::storeToCache($cacheKey, $total);
-			}
+			$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$homeOrg' ORDER BY id DESC LIMIT 0,1");
 
-			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $total;
+			return (int)$response[0]['storage_mib'];
 		}
 
 		/**
@@ -49,18 +41,14 @@
 		 * @return bool|\mysqli_result
 		 */
 		public function orgsList() {
-			$cacheKey = 'service.orgs';
-			if(!Utils::loadFromCache($cacheKey)) {
-				$response = $this->mySQLConnection->query("SELECT DISTINCT org FROM $this->orgStorageTable ORDER BY org ASC");
-				// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
-				$orgNames = array();
-				foreach($response as $org) {
-					$orgNames[] = $org["org"];
-				}
-				Utils::storeToCache($cacheKey, $orgNames, 7200);
+			$response = $this->mySQLConnection->query("SELECT DISTINCT org FROM $this->orgStorageTable ORDER BY org ASC");
+			// This query returns data of structure "org":"uio", "org":"uninett" - we don't need the "org" bit..
+			$orgNames = array();
+			foreach($response as $org) {
+				$orgNames[] = $org["org"];
 			}
 
-			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $orgNames;
+			return $orgNames;
 		}
 
 		/**
@@ -85,22 +73,18 @@
 		 * @return bool|\mysqli_result
 		 */
 		public function storageList() {
-			$cacheKey = 'service.diskusage.list';
-			if(!Utils::loadFromCache($cacheKey)) {
-				// Last distinct orgs (hence last timestamp)
-				$response = $this->mySQLConnection->query(
-					"SELECT storage_mib FROM $this->orgStorageTable " .
-					"WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) " .
-					"ORDER BY storage_mib ASC"
-				);
-				$storage  = array();
-				foreach($response as $storage_mib) {
-					$storage[] = (int)$storage_mib['storage_mib'];
-				}
-				Utils::storeToCache($cacheKey, $storage);
+			// Last distinct orgs (hence last timestamp)
+			$response = $this->mySQLConnection->query(
+				"SELECT storage_mib FROM $this->orgStorageTable " .
+				"WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) " .
+				"ORDER BY storage_mib ASC"
+			);
+			$storage  = array();
+			foreach($response as $storage_mib) {
+				$storage[] = (int)$storage_mib['storage_mib'];
 			}
 
-			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $storage;
+			return $storage;
 		}
 
 		/**
@@ -114,31 +98,26 @@
 			if(is_null($year)) {
 				$year = date("Y");
 			}
-			$cacheKey = 'service.diskusage.avg.' . $year;
-			if(!Utils::loadFromCache($cacheKey)) {
-				// Complete dump of all records from $year
-				$response = $this->mySQLConnection->query("SELECT timestamp, storage_mib FROM $this->orgStorageTable WHERE YEAR(timestamp) = $year");
-
-				$curDate      = NULL;
-				$days         = 0;
-				$dateStorage  = 0;
-				$totalStorage = 0;
-				foreach($response as $storage) {
-					if($curDate !== date("Ymd", strtotime($storage['timestamp']))) {
-						$curDate = date("Ymd", strtotime($storage['timestamp']));
-						$days++;
-						$totalStorage += $dateStorage;
-						$dateStorage = 0;
-					}
-					$dateStorage += $storage['storage_mib'];
+			// Complete dump of all records from $year
+			$response     = $this->mySQLConnection->query("SELECT timestamp, storage_mib FROM $this->orgStorageTable WHERE YEAR(timestamp) = $year");
+			$curDate      = NULL;
+			$days         = 0;
+			$dateStorage  = 0;
+			$totalStorage = 0;
+			foreach($response as $storage) {
+				if($curDate !== date("Ymd", strtotime($storage['timestamp']))) {
+					$curDate = date("Ymd", strtotime($storage['timestamp']));
+					$days++;
+					$totalStorage += $dateStorage;
+					$dateStorage = 0;
 				}
-				// Remember to include last day
-				$totalStorage += $dateStorage;
-				//
-				Utils::storeToCache($cacheKey, $totalStorage / $days);
+				$dateStorage += $storage['storage_mib'];
 			}
+			// Remember to include last day
+			$totalStorage += $dateStorage;
 
-			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $totalStorage / $days;
+			//
+			return $totalStorage / $days;
 		}
 
 	}
