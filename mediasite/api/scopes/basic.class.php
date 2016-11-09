@@ -29,16 +29,17 @@
 		 * @return mixed
 		 */
 		public function homeOrgDiskusageTotal() {
-			$homeOrg = explode('.', $this->dataporten->userOrg());
-			$homeOrg = $homeOrg[0];
+			$homeOrg  = explode('.', $this->dataporten->userOrg());
+			$homeOrg  = $homeOrg[0];
 			$cacheKey = $homeOrg . '.diskusage.total';
 			//
 			if(!Utils::loadFromCache($cacheKey)) {
 				$response = $this->mySQLConnection->query("SELECT storage_mib FROM $this->orgStorageTable WHERE org = '$homeOrg' ORDER BY id DESC LIMIT 0,1");
-				Utils::storeToCache($cacheKey, (int)$response[0]['storage_mib']);
+				$total    = (int)$response[0]['storage_mib'];
+				Utils::storeToCache($cacheKey, $total);
 			}
 
-			return Utils::loadFromCache($cacheKey);
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $total;
 		}
 
 		/**
@@ -57,8 +58,8 @@
 				}
 				Utils::storeToCache($cacheKey, $orgNames, 7200);
 			}
-			//
-			return Utils::loadFromCache($cacheKey);
+
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $orgNames;
 		}
 
 		/**
@@ -97,8 +98,8 @@
 				}
 				Utils::storeToCache($cacheKey, $storage);
 			}
-			//
-			return Utils::loadFromCache($cacheKey);
+
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $storage;
 		}
 
 		/**
@@ -135,8 +136,8 @@
 				//
 				Utils::storeToCache($cacheKey, $totalStorage / $days);
 			}
-			//
-			return Utils::loadFromCache($cacheKey);
+
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $totalStorage / $days;
 		}
 
 	}

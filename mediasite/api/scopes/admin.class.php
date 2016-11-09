@@ -41,7 +41,7 @@
 				}
 				Utils::storeToCache($cacheKey, $orgs);
 			}
-			return Utils::loadFromCache($cacheKey);
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $orgs;
 		}
 
 		/**
@@ -81,6 +81,6 @@
 				Utils::storeToCache($cacheKey, $orgsList);
 			}
 			//
-			return Utils::loadFromCache($cacheKey);
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $orgsList;
 		}
 	}

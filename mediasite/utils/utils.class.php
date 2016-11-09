@@ -2,7 +2,7 @@
 	/**
 	 *
 	 *
-	 * @author Simon Skrødal
+	 * @author  Simon Skrødal
 	 * @since   28/01/2016
 	 */
 	namespace Mediasite\Utils;
@@ -24,25 +24,30 @@
 		 * @param      $data
 		 * @param bool $TTL
 		 */
-		public static function storeToCache($entryName, $data, $TTL = false){
-			$TTL = $TTL ? $TTL : Config::get('cache')['TTL'];
-			apc_store('MEDIASITE_API.' . $entryName, $data, $TTL);
+		public static function storeToCache($entryName, $data, $TTL = false) {
+			if(Config::get('cache')['enable'] == true) {
+				$TTL = $TTL ? $TTL : Config::get('cache')['TTL'];
+				apc_store('MEDIASITE_API.' . $entryName, $data, $TTL);
+			}
 		}
+
 		/**
 		 * Returns data from cache if available, or false otherwise.
+		 *
 		 * @param $entryName
 		 *
 		 * @return bool|mixed
 		 */
-		public static function loadFromCache($entryName){
+		public static function loadFromCache($entryName) {
 			if(!apc_exists('MEDIASITE_API.' . $entryName)) {
 				return false;
 			}
+
 			// Pull data from cache
 			return apc_fetch('MEDIASITE_API.' . $entryName);
 		}
 
-		public static function flushCache(){
+		public static function flushCache() {
 			apc_clear_cache();
 			apc_clear_cache('user');
 		}

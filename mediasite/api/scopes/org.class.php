@@ -58,7 +58,7 @@
 					Utils::storeToCache($cacheKey, $orgStorageRecords);
 				}
 			}
-			return Utils::loadFromCache($cacheKey);
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $orgStorageRecords;
 		}
 
 		/**
@@ -72,6 +72,7 @@
 				$year = date("Y");
 			}
 			$cacheKey = 'org.' . $org . '.diskusage.avg.' . $year;
+			$avg = 0;
 
 			if(!Utils::loadFromCache($cacheKey)) {
 				// All records for org from selected year
@@ -81,10 +82,10 @@
 				foreach($response as $storage) {
 					$totalStorage += $storage['storage_mib'];
 				}
-				Utils::storeToCache($cacheKey, $totalStorage / count( $response ));
+				$avg = $totalStorage / count( $response );
+				Utils::storeToCache($cacheKey, $avg);
 			}
-			//
-			return Utils::loadFromCache($cacheKey);
+			return Config::get('cache')['enable'] ? Utils::loadFromCache($cacheKey) : $avg;
 		}
 
 	}
