@@ -75,13 +75,13 @@
 		public function storageList() {
 			// Last distinct orgs (hence last timestamp)
 
-			/*
+
 			$response = $this->mySQLConnection->query("
 				SELECT storage_mib FROM $this->orgStorageTable
 				WHERE id IN (SELECT MAX(id) FROM $this->orgStorageTable GROUP BY org) 
 				ORDER BY storage_mib ASC
 			");
-			*/
+/*
 
 			$response = $this->mySQLConnection->query("
 				SELECT storage_mib, MAX(id) 
@@ -90,7 +90,7 @@
 				ORDER BY storage_mib ASC
 			");
 
-
+*/
 
 			$storage  = array();
 			foreach($response as $storage_mib) {
