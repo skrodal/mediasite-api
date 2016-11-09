@@ -24,7 +24,7 @@
 				'debug' => false
 			],
 			'cache'  => [
-				'enable' => true,
+				'enable' => !true,
 			    'TTL' => 3600
 			]
 		]);
