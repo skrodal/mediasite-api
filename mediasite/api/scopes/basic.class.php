@@ -82,7 +82,7 @@
 				ORDER BY storage_mib ASC
 			");
 			*/
-			
+
 			$response = $this->mySQLConnection->query("
 				SELECT storage_mib, MAX(id) 
 				FROM $this->orgStorageTable
