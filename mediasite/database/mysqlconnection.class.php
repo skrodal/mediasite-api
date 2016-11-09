@@ -21,23 +21,13 @@
 		private $config;
 
 		public function __construct() {
-			// Get connection conf
-			$this->config = $this->getConfig();
-			// MySQL connection
-			$this->connection = $this->getConnection();
-		}
-
-		/**
-		 * @return mixed
-		 */
-		private function getConfig() {
-			$this->config = file_get_contents(Config::get('auth')['mediasite_mysql']);
-			// Sanity
+			echo "__construct MySQL";
+			$this->config = json_decode(file_get_contents(Config::get('auth')['mediasite_mysql'], true));
 			if($this->config === false) {
 				Response::error(404, 'Not Found: MySQL config.');
 			}
-			//
-			return json_decode($this->config, true);
+			// MySQL connection
+			$this->connection = $this->getConnection();
 		}
 
 		/**
@@ -46,12 +36,14 @@
 		 * @return mysqli
 		 */
 		private function getConnection() {
+			echo "MySQL getConnection Start";
 			$mysqli = new mysqli($this->config['host'], $this->config['user'], $this->config['pass'], $this->config['db']);
 			// If error code set
 			if($mysqli->connect_errno) {
 				Utils::log('MySQL Connect Error: ' . $mysqli->connect_error);   // Returns a string description of the last connect error
 				Response::error(500, 'DB connection failed.');
 			}
+			echo "MySQL getConnection Done";
 			return $mysqli;
 		}
 
@@ -60,7 +52,7 @@
 		 *
 		 * Stored in config to scale in case more tables are added in the future.
 		 */
-		public function getOrgStorageTableName(){
+		public function getOrgStorageTableName() {
 			return $this->config['org_storage_table'];
 		}
 
@@ -70,8 +62,11 @@
 		 * @return array
 		 */
 		public function query($query) {
+			echo "MySQL query Start";
 			// Run query
 			$response = $this->connection->query($query);
+
+			echo "MySQL query Done";
 			// On error
 			if(!$response) {
 				Utils::log('MySQL Query Error: ' . $this->connection->error);
@@ -85,6 +80,8 @@
 			// Tidy
 			$response->close();
 			$this->connection->close();
+
+			echo "MySQL query Response";
 			//
 			return $rows;
 		}

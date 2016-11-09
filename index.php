@@ -17,7 +17,6 @@
 	use Mediasite\Auth\Dataporten;
 	use Mediasite\Conf\Config;
 	use Mediasite\Utils\Response;
-	use Mediasite\Utils\Utils;
 	use Mediasite\Vendor\Router;
 
 	// Gatekeeper and provider of useful info
