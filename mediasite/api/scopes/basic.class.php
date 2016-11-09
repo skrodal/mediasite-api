@@ -86,7 +86,7 @@
 			$response = $this->mySQLConnection->query("
 				SELECT storage_mib, timestamp 
 				FROM $this->orgStorageTable
-				WHERE timestamp = SUBDATE(CURDATE(),1)
+				WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND timestamp < CURDATE()
 				ORDER BY storage_mib ASC
 			");
 
