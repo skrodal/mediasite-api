@@ -92,11 +92,11 @@
 			// If today returned no records, query list from yesterday
 			if(empty($response)) {
 				$response = $this->mySQLConnection->query("
-				SELECT storage_mib 
-				FROM $this->orgStorageTable
-				WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND timestamp < CURDATE()
-				ORDER BY storage_mib ASC
-			");
+					SELECT storage_mib 
+					FROM $this->orgStorageTable
+					WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND timestamp < CURDATE()
+					ORDER BY storage_mib ASC
+				");
 			}
 
 			$storage = array();

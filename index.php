@@ -285,6 +285,8 @@
 	if($match && is_callable($match['target'])) {
 		sanitizeInput();
 		call_user_func_array($match['target'], $match['params']);
+		global $mediasite;
+		$mediasite->__destruct();
 	} else {
 		Response::error(404, "The requested resource route could not be found.");
 	}

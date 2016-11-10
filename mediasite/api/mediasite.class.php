@@ -27,6 +27,10 @@
 			$this->basic           = new Basic($this->dataporten, $this->mySQLConnection);
 		}
 
+		function __destruct() {
+			$this->mySQLConnection->__destruct();
+		}
+
 		public function basic() {
 			return $this->basic;
 		}

@@ -29,6 +29,10 @@
 			$this->connection = $this->getConnection();
 		}
 
+		public function __destruct() {
+			$this->connection->close();
+		}
+
 		/**
 		 * Get a client connection to the DB
 		 *
@@ -73,7 +77,6 @@
 			}
 			// Tidy
 			$response->close();
-			$this->connection->close();
 			//
 			return $rows;
 		}
