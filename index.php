@@ -286,7 +286,7 @@
 		sanitizeInput();
 		call_user_func_array($match['target'], $match['params']);
 		global $mediasite;
-		$mediasite->__destruct();
+		$mediasite->done();
 	} else {
 		Response::error(404, "The requested resource route could not be found.");
 	}

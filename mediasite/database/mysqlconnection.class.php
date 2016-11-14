@@ -29,12 +29,6 @@
 			$this->connection = $this->getConnection();
 		}
 
-		public function __destruct() {
-			if($this->connection !== false){
-				$this->connection->close();
-			}
-		}
-
 		/**
 		 * Get a client connection to the DB
 		 *
@@ -47,7 +41,14 @@
 				Utils::log('MySQL Connect Error: ' . $mysqli->connect_error);   // Returns a string description of the last connect error
 				Response::error(500, 'DB connection failed.');
 			}
+
 			return $mysqli;
+		}
+
+		public function done() {
+			if($this->connection !== false) {
+				$this->connection->close();
+			}
 		}
 
 		/**
@@ -79,6 +80,7 @@
 			}
 			// Tidy
 			$response->close();
+
 			//
 			return $rows;
 		}
