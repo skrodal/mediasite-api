@@ -17,7 +17,7 @@
 
 	class MySQLConnection {
 
-		private $connection;
+		private $connection = false;
 		private $config;
 
 		public function __construct() {
@@ -30,7 +30,9 @@
 		}
 
 		public function __destruct() {
-			$this->connection->close();
+			if($this->connection !== false){
+				$this->connection->close();
+			}
 		}
 
 		/**
